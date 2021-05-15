@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+
+start="$PWD"
+winedir=/tmp/dwarf-portable-executable/wine
+script_dir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+
+# You can change the url below if you want to use a different Wine build
+# You can also put your directory (named wine) containing Wine build near the script
+# If the script will see the directory named wine, then this URL will not be used
+wine_url="$(curl https://api.github.com/repos/Kron4ek/Wine-Builds/releases | grep -wo http.\*-staging-tkg-amd64.tar.xz | head -n1)"
+
+# If there is no wine directory, then download Wine build from the URL
+mkdir $winedir && cd $winedir
+if  [ ! -d wine ]; then
+    wget -nv -O wine.tar.xz "${wine_url}" -q --show-progress
+
+    if [ $? -ne 0 ]; then
+        echo "URL for downloading Wine is incorrect!"
+        echo "Please set wine_url variable to correct URL"
+        exit 1
+    fi
+
+    tar xf wine.tar.xz
+    rm wine.tar.xz
+    mv wine* wine
+fi
+
+if [ ! -d wine-runtime ]; then
+    if [ ! -f "${script_dir}"/wine-runtime.tar.xz ]; then
+        echo "wine-runtime.tar.xz is required!"
+        exit 1
+    elif [ "$(stat -c%s "${script_dir}"/wine-runtime.tar.xz)" -lt 10000 ]; then
+        echo "Seems like wine-runtime.tar.xz is corrupted!"
+        exit 1
+    else
+        tar xf "${script_dir}"/wine-runtime.tar.xz
+    fi
+fi
+
+if [ ! -f AppRun ]; then
+    if [ ! -f "${script_dir}"/AppRun ]; then
+        echo "AppRun is required!"
+        exit 1
+    else
+        cp "${script_dir}"/AppRun .
+    fi
+
+    chmod +x AppRun
+fi
+
+if [ ! -f winetricks ]; then
+    if [ ! -f "${script_dir}"/winetricks ]; then
+        wget -nv -O winetricks "https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks" -q --show-progress
+    fi
+
+    chmod +x winetricks
+fi
+
+cd "$start"
+appdwarf $winedir
+rm -r $winedir
+mv wine.sh wine

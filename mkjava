@@ -1,0 +1,19 @@
+#!/bin/bash
+DIR=/tmp/dwarf-portable-executable/java
+mkdir -p $DIR
+curl -L https://api.adoptopenjdk.net/v3/binary/latest/11/ga/linux/x64/jre/openj9/normal/adoptopenjdk | tar xz -C$DIR
+JDK=$(echo $DIR/jdk*)
+
+cat > $JDK/AppRun << 'EOF'
+#!/bin/sh
+HERE=$(dirname $(readlink -f "${0}"))
+export LD_LIBRARY_PATH="${HERE}":$PATH
+"${HERE}"/bin/java $@
+rm -r ~/javasharedresources
+EOF
+
+chmod +x $JDK/AppRun
+
+appdwarf $JDK
+mv $(basename $JDK).sh java
+rm -rf $DIR

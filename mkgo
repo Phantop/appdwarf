@@ -1,0 +1,17 @@
+#!/bin/bash
+DIR=/tmp/dwarf-portable-executable
+mkdir -p $DIR
+curl -L https://golang.org/$(curl -sL https://golang.org/dl | grep -wo dl/go.\*linux-amd64.tar.gz | head -n1) | tar xz -C$DIR
+
+cat > $DIR/go/AppRun << 'EOF'
+#!/bin/sh
+HERE=$(dirname $(readlink -f "${0}"))
+export LD_LIBRARY_PATH="${HERE}":$PATH
+"${HERE}"/bin/go $@
+EOF
+
+chmod +x $DIR/go/AppRun
+
+appdwarf $DIR/go
+mv go.sh go
+rm -rf $DIR/go

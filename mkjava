@@ -1,4 +1,5 @@
 #!/bin/bash
+PATH=$(dirname $(readlink -f "${0}")):$PATH
 DIR=/tmp/dwarf-portable-executable/java
 mkdir -p $DIR
 curl -L https://api.adoptopenjdk.net/v3/binary/latest/11/ga/linux/x64/jre/openj9/normal/adoptopenjdk | tar xz -C$DIR

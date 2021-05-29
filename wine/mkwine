@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+PATH=$(dirname $(readlink -f "${0}"))/../:$PATH
 start="$PWD"
 winedir=/tmp/dwarf-portable-executable/wine
 script_dir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"

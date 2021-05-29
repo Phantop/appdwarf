@@ -1,0 +1,80 @@
+#!/bin/sh
+set -eo pipefail
+IFS=$'\n\t'
+version=1
+
+usage(){
+    echo "Usage: $0 [option] [FILE/FOLDER/URL]"
+    echo "  Compress a given AppDir (default)"
+    echo "    -a,  --appimage     Convert a given AppImage to appdwarf" 
+    echo "    -u,  --url          Fetch AppImage from URL and convert to appdwarf"
+}
+
+dwarf() {
+    mkdwarfs -i "$1" -o "$(basename "$1").sh" --header <(cat << 'EOF'
+#!/bin/sh
+DIR=/tmp/.dwarf_$(basename "$0")$RANDOM
+mkdir "$DIR" 2> /dev/null
+dwarfs -o offset=auto "$0" "$DIR" 2> /dev/null
+"$DIR/AppRun" $@
+fusermount -uz "$DIR" 2> /dev/null
+rmdir "$DIR" 2> /dev/null
+exit
+EOF
+)
+
+chmod +x "$(basename "$@").sh"
+}
+
+appimage() {
+    if [[ -f "$1" ]]
+    then
+        chmod +x "$1"
+        ./"$1" --appimage-extract || exit 1
+        dwarf squashfs-root
+        rm -rf squashfs-root
+        mv squashfs-root.sh $(basename "$1" .AppImage).sh
+    else
+        echo "$1" is not a valid file
+        exit 1
+    fi
+}
+
+rm -rf squashfs-root
+
+while true
+do
+    case "$1" in
+        --help | -h) 
+            usage
+            exit 0
+            ;;
+        --version) 
+            echo "$version"
+            exit 0
+            ;;
+        --appimage | -a) 
+            appimage "$2"
+            exit 0
+            ;;
+        --url | -u)
+            file=$(basename "$2")
+            wget "$2" -O "$file" || exit 1
+            appimage "$file"
+            rm "$file"
+            exit 0
+            ;;
+        --) 
+            shift; break;;
+        *) 
+            break;;
+    esac
+done
+
+if test $# -eq 0; then
+    usage
+    exit 0
+else
+    dwarf "$1"
+    exit 0
+fi

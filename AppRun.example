@@ -1,0 +1,5 @@
+#!/bin/sh
+HERE=$(dirname $(readlink -f "${0}"))
+export LD_LIBRARY_PATH="${HERE}":$PATH
+export DXVK_STATE_CACHE_PATH=~/.cache DXVK_LOG_PATH=none
+wine "${HERE}"/Pine.exe $@

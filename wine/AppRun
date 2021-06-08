@@ -10,6 +10,7 @@ export WINE="${script_dir}"/wine/bin/wine
 export WINE64="${script_dir}"/wine/bin/wine64
 export WINESERVER="${script_dir}"/wine/bin/wineserver
 export WINETRICKS="${script_dir}"/winetricks
+export DXVK_STATE_CACHE_PATH=~/.cache DXVK_LOG_PATH=none
 
 if [ "$1" = "winetricks" ]; then
 	if [ $# -ge 2 ]; then

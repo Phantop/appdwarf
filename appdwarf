@@ -1,10 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 set -eo pipefail
 IFS=$'\n\t'
 version=1
 
 usage(){
-    echo "Usage: $0 [option] [FILE/FOLDER/URL]"
+    echo "Usage: $(basename "$0") [option] [FILE/FOLDER/URL]"
     echo "  Compress a given AppDir (default)"
     echo "    -a,  --appimage     Convert a given AppImage to appdwarf" 
     echo "    -u,  --url          Fetch AppImage from URL and convert to appdwarf"
@@ -33,7 +33,7 @@ appimage() {
         ./"$1" --appimage-extract || exit 1
         dwarf squashfs-root
         rm -rf squashfs-root
-        mv squashfs-root.sh $(basename "$1" .AppImage).sh
+        mv squashfs-root.sh "$(basename "$1" .AppImage)".sh
     else
         echo "$1" is not a valid file
         exit 1

@@ -30,6 +30,7 @@ appimage() {
     if [[ -f "$1" ]]
     then
         chmod +x "$1"
+        rm -rf squashfs-root
         ./"$1" --appimage-extract || exit 1
         dwarf squashfs-root
         rm -rf squashfs-root
@@ -40,7 +41,6 @@ appimage() {
     fi
 }
 
-rm -rf squashfs-root
 
 while true
 do

@@ -11,7 +11,7 @@ usage(){
 }
 
 dwarf() {
-    mkdwarfs -i "$1" -o "$(basename "$1").sh" --header <(cat << 'EOF'
+    mkdwarfs -i "$1" -o "$(basename "$1").sh" "${@:2}" --header <(cat << 'EOF'
 #!/bin/sh
 DIR=/tmp/.dwarf_$(basename "$0")$RANDOM
 mkdir "$DIR" 2> /dev/null
@@ -23,7 +23,7 @@ exit
 EOF
 )
 
-chmod +x "$(basename "$@").sh"
+chmod +x "$(basename "$1").sh"
 }
 
 appimage() {
@@ -32,7 +32,7 @@ appimage() {
         chmod +x "$1"
         rm -rf squashfs-root
         ./"$1" --appimage-extract || exit 1
-        dwarf squashfs-root
+        dwarf squashfs-root "${@:2}"
         rm -rf squashfs-root
         mv squashfs-root.sh "$(basename "$1" .AppImage)".sh
     else
@@ -54,13 +54,13 @@ do
             exit 0
             ;;
         --appimage | -a) 
-            appimage "$2"
+            appimage "${@:2}"
             exit 0
             ;;
         --url | -u)
             file=$(basename "$2")
             wget "$2" -O "$file" || exit 1
-            appimage "$file"
+            appimage "$file" "${@:3}"
             rm "$file"
             exit 0
             ;;
@@ -75,6 +75,6 @@ if test $# -eq 0; then
     usage
     exit 0
 else
-    dwarf "$1"
+    dwarf "$@"
     exit 0
 fi

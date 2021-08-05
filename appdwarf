@@ -16,7 +16,7 @@ dwarf() {
 DIR=/tmp/.dwarf_$(basename "$0")$RANDOM
 mkdir "$DIR" 2> /dev/null
 dwarfs -o offset=auto "$0" "$DIR" 2> /dev/null
-"$DIR/AppRun" $@
+"$DIR/AppRun" "$@"
 fusermount -uz "$DIR" 2> /dev/null
 rmdir "$DIR" 2> /dev/null
 exit

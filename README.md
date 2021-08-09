@@ -6,7 +6,7 @@ Wine builds packed into a portable executables
 
 These scripts automatically fetch the latest version of their respective program and compress them into a portable image using [dwarfs](https://github.com/mhx/dwarfs) in a similar format to an [AppImage.](https://appimage.org/)
 
-The titular `appdwarf` utility supports both converting an AppDir or an existing AppImage file, either as a local file or from a URL.
+The titular `appdwarf` utility supports both converting an AppDir or an existing AppImage file, either as a local file or from a URL, and is used similarly to how 'appimagetool' is.
 
 ## Requirements
 
@@ -19,9 +19,9 @@ If you only wish to run an existing image, only `dwarfs` (or `dwarfs2`) is neede
 
 ## How to create portable executables
 
-Use the corresponding script for the desired program. 
+For your own programs, simply create an AppImage-style AppDir and run `appdwarf {directory}` or use one of the additional options (listed via `appdwarf --help`) to convert an existing AppImage to appdwarf.
 
-This script will use ready-to-use binaries to create portable executables.
+The other scripts for specific programs will download all necessary files and create a resulting appdwarf in the same folder.
 
 ## Notes
 

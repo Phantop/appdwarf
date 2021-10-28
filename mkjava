@@ -2,8 +2,9 @@
 PATH=$(dirname $(readlink -f "${0}")):$PATH
 DIR=/tmp/dwarf-portable-executable/java
 mkdir -p $DIR
-curl -L https://api.adoptopenjdk.net/v3/binary/latest/11/ga/linux/x64/jre/openj9/normal/adoptopenjdk | tar xz -C$DIR
+curl -L https://api.adoptopenjdk.net/v3/binary/latest/$1/ga/linux/x64/jre/openj9/normal/adoptopenjdk | tar xz -C$DIR
 JDK=$(echo $DIR/jdk*)
+ver=$1
 
 cat > $JDK/AppRun << 'EOF'
 #!/bin/sh
@@ -15,6 +16,7 @@ EOF
 
 chmod +x $JDK/AppRun
 
-appdwarf $JDK
-mv $(basename $JDK).sh java
+shift
+appdwarf $JDK $@
+mv $(basename $JDK).sh java$ver
 rm -rf $DIR

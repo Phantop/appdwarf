@@ -11,10 +11,10 @@ usage(){
 }
 
 dwarf() {
-    mkdwarfs -i "$1" -o "$(basename "$1").sh" "${@:2}" --header <(cat << 'EOF'
+    mkdwarfs -i "$1" -o "$(basename "$1").sh" -B5 "${@:2}" --header <(cat << 'EOF'
 #!/bin/sh
 DIR="$(mktemp -td dwarf_$(basename "$0")XXXXX)"
-dwarfs -o offset=auto "$0" "$DIR" 2> /dev/null
+dwarfs -o offset=auto -o tidy_strategy=swap "$0" "$DIR" 2> /dev/null
 "$DIR/AppRun" "$@"
 fusermount -uz "$DIR" 2> /dev/null
 rmdir "$DIR" 2> /dev/null

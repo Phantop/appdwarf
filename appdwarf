@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eo pipefail
 IFS=$'\n\t'
-version=1.1
+version=1.2
 
 usage(){
     echo "Usage: $(basename "$0") [option] [FILE/FOLDER/URL]"
@@ -15,6 +15,7 @@ dwarf() {
 #!/bin/sh
 DIR="$(mktemp -td dwarf_$(basename "$0")XXXXX)"
 dwarfs -o offset=auto -o tidy_strategy=swap "$0" "$DIR" 2> /dev/null
+export APPDWARF_CMD="$0"
 "$DIR/AppRun" "$@"
 fusermount -uz "$DIR" 2> /dev/null
 rmdir "$DIR" 2> /dev/null

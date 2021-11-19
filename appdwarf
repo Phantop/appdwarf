@@ -14,11 +14,12 @@ dwarf() {
     mkdwarfs -i "$1" -o "$(basename "$1").sh" -B5 "${@:2}" --header <(cat << 'EOF'
 #!/bin/sh
 DIR="$(mktemp -td dwarf_$(basename "$0")XXXXX)"
-dwarfs -o offset=auto -o tidy_strategy=swap "$0" "$DIR" 2> /dev/null
-export APPDWARF_CMD="$0"
+ARG="-o offset=auto -o tidy_strategy=swap -o workers=4"
+dwarfs $ARG "$0" "$DIR" 2>/dev/null
+export APPDWARF_CMD=$(basename "$0")
 "$DIR/AppRun" "$@"
-fusermount -uz "$DIR" 2> /dev/null
-rmdir "$DIR" 2> /dev/null
+fusermount -u "$DIR"
+rmdir "$DIR"
 exit
 EOF
 )

@@ -2,8 +2,10 @@
 PATH=$(dirname $(readlink -f "${0}")):$PATH
 DIR=/tmp/dwarf-portable-executable/java
 mkdir -p $DIR
-curl -L https://api.adoptopenjdk.net/v3/binary/latest/$1/ga/linux/x64/jre/openj9/normal/adoptopenjdk | tar xz -C$DIR
-JDK=$(echo $DIR/jdk*)
+LINK=$(curl https://api.github.com/repos/adoptium/temurin$1-binaries/releases/latest | jq .assets[].browser_download_url | grep 'jdk_x64_linux_hotspot' | cut -d\" -f2)
+curl -L $LINK | tar xz -C$DIR
+$DIR/jdk*/bin/jlink --add-modules ALL-MODULE-PATH --output $DIR/jre --strip-debug --no-man-pages --no-header-files --compress=0
+JDK=$DIR/jre
 ver=$1
 
 cat > $JDK/AppRun << 'EOF'

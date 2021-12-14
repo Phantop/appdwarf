@@ -1,24 +1,25 @@
 #!/bin/bash
 PATH=$(dirname $(readlink -f "${0}")):$PATH
 DIR=/tmp/dwarf-portable-executable/java
+JRE=$DIR/jre
+VER=$1
 mkdir -p $DIR
-LINK=$(curl https://api.github.com/repos/adoptium/temurin$1-binaries/releases/latest | jq .assets[].browser_download_url | grep 'jdk_x64_linux_hotspot' | cut -d\" -f2)
-curl -L $LINK | tar xz -C$DIR
-$DIR/jdk*/bin/jlink --add-modules ALL-MODULE-PATH --output $DIR/jre --strip-debug --no-man-pages --no-header-files --compress=0
-JDK=$DIR/jre
-ver=$1
 
-cat > $JDK/AppRun << 'EOF'
+LINK=https://api.adoptium.net/v3/binary/latest/$1/ga/linux/x64/jdk/hotspot/normal/eclipse
+curl -L $LINK | tar xz -C$DIR
+$DIR/jdk*/bin/jlink --add-modules ALL-MODULE-PATH --output $JRE --strip-debug --no-man-pages --no-header-files --compress=0
+
+
+cat > $JRE/AppRun << 'EOF'
 #!/bin/sh
 HERE=$(dirname $(readlink -f "${0}"))
 export LD_LIBRARY_PATH="${HERE}":$PATH
 "${HERE}"/bin/java $@
 rm -r ~/javasharedresources
 EOF
-
-chmod +x $JDK/AppRun
+chmod +x $JRE/AppRun
 
 shift
-appdwarf $JDK $@
-mv $(basename $JDK).sh java$ver
+appdwarf $JRE $@
+mv $(basename $JRE).sh java$VER
 rm -rf $DIR

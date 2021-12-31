@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-# wine-portable-executable
-Wine builds packed into a portable executables
+appdwarf
 =======
-## Description
-
 These scripts automatically fetch the latest version of their respective program and compress them into a portable image using [dwarfs](https://github.com/mhx/dwarfs) in a similar format to an [AppImage.](https://appimage.org/)
 
 The titular `appdwarf` utility supports both converting an AppDir or an existing AppImage file, either as a local file or from a URL, and is used similarly to how 'appimagetool' is.
@@ -34,4 +30,3 @@ Keep in mind that this project is new and it has not been thoroughly tested. Ple
 [dwarfs](https://github.com/mhx/dwarfs) by [mhx](https://github.com/mhx)
 
 Java builds from [AdoptOpenJDK](https://adoptopenjdk.net/)
->>>>>>> fe54f14 (dwarfs, latest builds, add java)

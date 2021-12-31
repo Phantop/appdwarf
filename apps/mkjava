@@ -1,5 +1,5 @@
 #!/bin/bash
-PATH=$(dirname $(readlink -f "${0}")):$PATH
+PATH=$(dirname $(readlink -f "${0}"))/..:$PATH
 DIR=/tmp/dwarf-portable-executable/java
 JRE=$DIR/jre
 VER=$1

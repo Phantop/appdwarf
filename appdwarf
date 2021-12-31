@@ -51,12 +51,8 @@ do
             echo Maintained by phantop.
             exit 0
             ;;
-        --appimage | -a) 
-            appimage "${@:2}"
-            exit 0
-            ;;
         --folder | -f) 
-            header_folder $2
+            header_folder $(realpath $2)
             shift 2
             ;;
         --lookback | -b) 
@@ -66,6 +62,11 @@ do
         --separate | -s) 
             header_separate
             shift
+            ;;
+
+        --appimage | -a) 
+            appimage "${@:2}"
+            exit 0
             ;;
         --url | -u)
             file=$(basename "$2")

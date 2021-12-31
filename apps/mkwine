@@ -1,0 +1,40 @@
+#!/bin/bash
+PATH=$(dirname $(readlink -f "${0}"))/..:$PATH
+DIR=/tmp/dwarf-portable-executable/wine
+mkdir -p $DIR
+
+LINK="$(curl https://api.github.com/repos/Kron4ek/Wine-Builds/releases | grep -wo http.\*-staging-tkg-amd64.tar.xz | head -n1)"
+curl -L $LINK | tar xJ -C$DIR
+mv $DIR/wine*/* $DIR
+rmdir $DIR/wine*/
+
+wget -O$DIR/winetricks https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
+chmod +x $DIR/winetricks
+
+cat > $DIR/AppRun << 'EOF'
+#!/bin/bash
+HERE="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+
+export WINE="${HERE}"/bin/wine
+export WINE64="${HERE}"/bin/wine64
+export WINESERVER="${HERE}"/bin/wineserver
+export WINETRICKS="${HERE}"/winetricks
+export DXVK_STATE_CACHE_PATH=~/.cache DXVK_LOG_PATH=none
+
+if [ "$1" = "winetricks" ]; then
+	if [ $# -ge 2 ]; then
+		shift
+		"${WINETRICKS}" "$@"
+	else
+		"${WINETRICKS}" --help
+	fi
+else
+	"${WINE}" "$@"
+	"${WINESERVER}" -w
+fi
+EOF
+chmod +x $DIR/AppRun
+
+appdwarf $DIR $@
+rm -r $DIR
+mv wine.sh wine

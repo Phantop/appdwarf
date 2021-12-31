@@ -1,0 +1,35 @@
+#!/bin/bash
+HEAD=/tmp/dwarfhead
+header_separate() {
+    cat > $HEAD << 'EOF'
+#!/bin/sh
+DIR="$(mktemp -td dwarf_$(basename "$0")XXXXX)"
+ARG="-o offset=auto -o tidy_strategy=swap -o workers=4"
+dwarfs $ARG "$0" "$DIR" 2>/dev/null
+export APPDWARF_CMD=$(basename "$0")
+"$DIR/AppRun" "$@"
+fusermount -u "$DIR"
+rmdir "$DIR"
+exit
+EOF
+}
+
+header() {
+    cat > $HEAD << 'EOF'
+#!/bin/sh
+DIR="/tmp/dwarf_$(echo "$0" | md5sum | head -c5)$(basename "$0")"
+export APPDWARF_CMD=$(basename "$0")
+
+if [[ -d $DIR ]]; then
+    "$DIR/AppRun" "$@"
+else
+    mkdir "$DIR"
+    ARG="-o offset=auto -o tidy_strategy=swap -o workers=4"
+    dwarfs $ARG "$0" "$DIR" 2>/dev/null
+    "$DIR/AppRun" "$@"
+fi
+fusermount -qu "$DIR"
+rmdir "$DIR"
+exit
+EOF
+}

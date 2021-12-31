@@ -1,7 +1,8 @@
 #!/bin/bash
 set -eo pipefail
 IFS=$'\n\t'
-version=1.2
+HERE=$(dirname $(readlink -f "${0}"))
+source $HERE/headers
 
 usage(){
     echo "Usage: $(basename "$0") [option] [FILE/FOLDER/URL]"
@@ -11,20 +12,8 @@ usage(){
 }
 
 dwarf() {
-    mkdwarfs -i "$1" -o "$(basename "$1").sh" -B5 "${@:2}" --header <(cat << 'EOF'
-#!/bin/sh
-DIR="$(mktemp -td dwarf_$(basename "$0")XXXXX)"
-ARG="-o offset=auto -o tidy_strategy=swap -o workers=4"
-dwarfs $ARG "$0" "$DIR" 2>/dev/null
-export APPDWARF_CMD=$(basename "$0")
-"$DIR/AppRun" "$@"
-fusermount -u "$DIR"
-rmdir "$DIR"
-exit
-EOF
-)
-
-chmod +x "$(basename "$1").sh"
+    mkdwarfs -i "$1" -o "$(basename "$1").sh" -B5 "${@:2}" --header $HEAD
+    chmod +x "$(basename "$1").sh"
 }
 
 appimage() {
@@ -42,7 +31,7 @@ appimage() {
     fi
 }
 
-
+header
 while true
 do
     case "$1" in
@@ -57,6 +46,10 @@ do
         --appimage | -a) 
             appimage "${@:2}"
             exit 0
+            ;;
+        --separate | -s) 
+            header_separate
+            shift
             ;;
         --url | -u)
             file=$(basename "$2")

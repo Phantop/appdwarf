@@ -17,19 +17,33 @@ EOF
 header() {
     cat > $HEAD << 'EOF'
 #!/bin/sh
-DIR="/tmp/dwarf_$(echo "$0" | md5sum | head -c5)$(basename "$0")"
+DIR="/tmp/dwarf_$(basename "$0")$(echo "$0" | md5sum | head -c5)"
 export APPDWARF_CMD=$(basename "$0")
 
-if [[ -d $DIR ]]; then
-    "$DIR/AppRun" "$@"
-else
+if [[ ! -d $DIR ]]; then
     mkdir "$DIR"
     ARG="-o offset=auto -o tidy_strategy=swap -o workers=4"
     dwarfs $ARG "$0" "$DIR" 2>/dev/null
-    "$DIR/AppRun" "$@"
 fi
+    "$DIR/AppRun" "$@"
 fusermount -qu "$DIR"
-rmdir "$DIR"
+rmdir "$DIR" 2> /dev/null
+exit
+EOF
+}
+
+header_folder() {
+    echo '#!/bin/sh' > $HEAD
+    echo DIR=\"$1\" >> $HEAD
+    cat >> $HEAD << 'EOF'
+if [ ! -d "$DIR" ]; then
+    mkdir "$DIR"
+    ARG="-o offset=auto -o tidy_strategy=swap -o workers=4"
+    dwarfs $ARG "$0" "$DIR" 2>/dev/null
+else
+    fusermount -u "$DIR"
+    rmdir "$DIR"
+fi
 exit
 EOF
 }

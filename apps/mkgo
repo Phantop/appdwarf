@@ -2,7 +2,7 @@
 PATH=$(dirname $(readlink -f "${0}"))/..:$PATH
 DIR=/tmp/dwarf-portable-executable
 mkdir -p $DIR
-LINK=$(curl -sL https://golang.org/dl | grep -wo dl/go.\*linux-amd64.tar.gz | head -n1)
+LINK=$(curl -sL https://golang.org/dl | grep -om1 dl/go.\*linux-amd64.tar.gz)
 curl -L https://golang.org/$LINK | tar xz -C$DIR
 
 cat > $DIR/go/AppRun << 'EOF'
@@ -15,5 +15,5 @@ EOF
 chmod +x $DIR/go/AppRun
 
 appdwarf $DIR/go
-mv go.sh go
+mv $DIR/go.sh go
 rm -rf $DIR/go

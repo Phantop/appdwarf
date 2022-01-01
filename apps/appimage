@@ -1,0 +1,5 @@
+#!/bin/bash
+LINK1=https://raw.githubusercontent.com/AppImage/appimage.github.io/master/apps/$1.md
+LINK2="$(curl $LINK1 | grep -o https.\*releases | sed 's|github.com|api.github.com/repos|')"
+LINK3="$(curl $LINK2 | grep -om1 https.\*AppImage)"
+appdwarf -u $LINK3

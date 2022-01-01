@@ -9,12 +9,18 @@ usage(){
     echo "Usage: $(basename "$0") [option] [FILE/FOLDER/URL]"
     echo "  Compress a given AppDir (default)"
     echo "    -a,  --appimage     Convert a given AppImage to appdwarf" 
+    echo "    -b,  --lookback     Change dwarfs block lookback amount"
+    echo "    -f,  --folder       Make image mount to a specified folder instead of running AppRun"
+    echo "    -s,  --separate     Use old, separated header format"
     echo "    -u,  --url          Fetch AppImage from URL and convert to appdwarf"
+
+    echo "    -h,  --help         Print this help text"
+    echo "    -v,  --version      Print the appdwarf version"
 }
 
 dwarf() {
-    mkdwarfs -i "$1" -o "$(basename "$1").sh" -B$back "${@:2}" --header $HEAD
-    chmod +x "$(basename "$1").sh"
+    mkdwarfs -i "$1" -o "$(realpath "$1").sh" -B$back "${@:2}" --header $HEAD
+    chmod +x "$(realpath "$1").sh"
 }
 
 appimage() {

@@ -5,17 +5,18 @@ mkdir -p $DIR
 LINK=https://static.rust-lang.org/dist/rust-nightly-x86_64-unknown-linux-gnu.tar.gz
 curl -L $LINK | tar xz -C$DIR
 
-$DIR/rust*/install.sh --destdir=$DIR/rust --without=rust-docs --prefix=/
+mkdir $DIR/rust
+cp -r $DIR/rust*/{cargo,rustc,rust-std*}/* $DIR/rust
 
 cat > $DIR/rust/AppRun << 'EOF'
 #!/bin/sh
 HERE=$(dirname $(readlink -f "${0}"))
-export LD_LIBRARY_PATH="${HERE}":$PATH
+export PATH="${HERE}/bin":$PATH
 "${HERE}"/bin/$APPDWARF_CMD $@
 EOF
 
 chmod +x $DIR/rust/AppRun
 
 appdwarf $DIR/rust
-mv $DIR/rust.sh rustc
+mv $DIR/rust.sh cargo
 rm -rf $DIR/rust*

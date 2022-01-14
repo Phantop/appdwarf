@@ -35,7 +35,7 @@ EOF
 
 header_folder() {
     echo '#!/bin/sh' > $HEAD
-    echo DIR=\"$1\" >> $HEAD
+    echo DIR=\""$1"\" >> $HEAD
     cat >> $HEAD << 'EOF'
 if [ ! -d "$DIR" ]; then
     mkdir "$DIR"

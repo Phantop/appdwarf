@@ -1,12 +1,12 @@
 #!/bin/bash
-PATH=$(dirname $(readlink -f "${0}"))/..:$PATH
+PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
 DIR=/tmp/dwarf-portable-executable/java
 JRE=$DIR/jre
 VER=$1
 mkdir -p $DIR
 
 LINK=https://api.adoptium.net/v3/binary/latest/$1/ga/linux/x64/jdk/hotspot/normal/eclipse
-curl -L $LINK | tar xz -C$DIR
+curl -L "$LINK" | tar xz -C$DIR
 $DIR/jdk*/bin/jlink --add-modules ALL-MODULE-PATH --output $JRE --strip-debug --no-man-pages --no-header-files --compress=0
 
 
@@ -21,5 +21,5 @@ chmod +x $JRE/AppRun
 
 shift
 appdwarf $JRE $@
-mv $JRE.sh java$VER
+mv $JRE.sh java"$VER"
 rm -rf $DIR

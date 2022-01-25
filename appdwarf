@@ -14,7 +14,7 @@ usage(){
     echo "    -s,  --separate     Use old, separated header format"
     echo "    -u,  --url          Fetch AppImage from URL and convert to appdwarf"
 
-    echo "    -h,  --help         iPrint this help text"
+    echo "    -h,  --help         Print this help text"
     echo "    -v,  --version      Print the appdwarf version"
 }
 
@@ -76,7 +76,11 @@ do
             ;;
         --url | -u)
             file=$(basename "$2")
-            wget "$2" -O "$file" || exit 1
+            if which aria2c; then
+                aria2c -x16 -s16 "$2" -o "$file" || exit 1
+            else
+                wget "$2" -O "$file" || exit 1
+            fi
             appimage "$file" "${@:3}"
             rm "$file"
             exit 0

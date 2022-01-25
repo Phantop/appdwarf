@@ -1,0 +1,18 @@
+#!/bin/bash
+PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
+DIR=/tmp/dwarf-portable-executable
+mkdir -p $DIR
+LINK="https://buildbot.pypy.org/nightly/py3.9/pypy-c-jit-latest-linux64.tar.bz2"
+curl -L "$LINK" | tar xfj - -C$DIR
+
+mv $DIR/pypy* $DIR/pypy
+ln -s bin/pypy $DIR/pypy/AppRun
+
+rm $DIR/pypy/bin/*.debug
+
+$DIR/pypy/AppRun -m ensurepip
+$DIR/pypy/AppRun -m pip install pipx
+
+appdwarf $DIR/pypy
+mv $DIR/pypy.sh pypy
+rm -rf $DIR/pypy

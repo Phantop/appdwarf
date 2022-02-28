@@ -20,7 +20,7 @@ header() {
 #!/bin/sh
 DIR="/tmp/dwarf_$(basename "$0")$(echo "$0" | md5sum | head -c5)"
 export APPDWARF_CMD=$(basename "$0")
-if [[ ! -d $DIR ]]; then
+if [ ! -d $DIR ]; then
     mkdir "$DIR"
     ARG="-o offset=auto -o tidy_strategy=swap -o workers=4"
     dwarfs $ARG "$0" "$DIR" 2>/dev/null

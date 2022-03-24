@@ -1,6 +1,6 @@
 #!/bin/bash
 PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
-DIR=/tmp/dwarf-portable-executable
+DIR=/tmp/appdwarf
 mkdir -p $DIR
 BASE=https://nodejs.org/dist/latest
 LINK="$BASE/$(curl -L $BASE | grep linux-x64.tar.xz | cut -d'"' -f2)"

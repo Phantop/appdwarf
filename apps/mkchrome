@@ -1,6 +1,6 @@
 #!/bin/bash
 PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
-DIR=/tmp/dwarf-portable-executable
+DIR=/tmp/appdwarf
 mkdir -p $DIR
 LINK=https://download-chromium.appspot.com/dl/Linux_x64
 curl -L "$LINK" | bsdtar xf - -C$DIR

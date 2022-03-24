@@ -1,6 +1,6 @@
 #!/bin/bash
 PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
-DIR=/tmp/dwarf-portable-executable/proton
+DIR=/tmp/appdwarf/proton
 mkdir -p $DIR
 
 LINK="$(curl https://api.github.com/repos/GloriousEggroll/proton-ge-custom/releases | grep -om1 http.\*tar.gz)"

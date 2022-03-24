@@ -1,0 +1,56 @@
+#!/bin/bash
+PATH="$(dirname "$(readlink -f "${0}")")/..":"$PATH"
+DIR=/tmp/appdwarf
+mkdir -p $DIR
+LINK=https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
+curl -L $LINK | tar xz -C$DIR
+mv $DIR/install-tl-* $DIR/tl
+
+cat > $DIR/tl/prof << 'EOF'
+selected_scheme scheme-custom
+TEXDIR /tmp/appdwarf/tex
+TEXMFCONFIG $TEXMFSYSCONFIG
+TEXMFHOME $TEXMFLOCAL
+TEXMFLOCAL /tmp/appdwarf/tex/texmf-local
+TEXMFSYSCONFIG /tmp/appdwarf/tex/texmf-config
+TEXMFSYSVAR /tmp/appdwarf/tex/texmf-var
+TEXMFVAR $TEXMFSYSVAR
+binary_x86_64-linux 1
+collection-basic 1
+collection-binextra 1
+collection-latex 1
+collection-latexrecommended 1
+instopt_adjustpath 1
+instopt_adjustrepo 1
+instopt_letter 0
+instopt_portable 1
+instopt_write18_restricted 1
+tlpdbopt_autobackup 0
+tlpdbopt_backupdir tlpkg/backups
+tlpdbopt_create_formats 1
+tlpdbopt_desktop_integration 1
+tlpdbopt_file_assocs 1
+tlpdbopt_generate_updmap 0
+tlpdbopt_install_docfiles 0
+tlpdbopt_install_srcfiles 0
+tlpdbopt_post_code 1
+tlpdbopt_sys_bin /usr/local/bin
+tlpdbopt_sys_info /usr/local/share/info
+tlpdbopt_sys_man /usr/local/share/man
+tlpdbopt_w32_multi_user 1
+EOF
+
+$DIR/tl/install-tl -profile $DIR/tl/prof
+
+cat > $DIR/tex/AppRun << 'EOF'
+#!/bin/sh
+HERE=$(dirname "$(readlink -f "${0}")")
+export PATH="${HERE}"/bin/x86_64-linux:"$PATH"
+"${HERE}"/bin/x86_64-linux/"$APPDWARF_CMD" "$@"
+EOF
+
+chmod +x $DIR/tex/AppRun
+
+appdwarf $DIR/tex
+mv $DIR/tex.sh tex
+rm -rf $DIR/tex $DIR/tl

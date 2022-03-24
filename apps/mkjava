@@ -1,6 +1,6 @@
 #!/bin/bash
 PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
-DIR=/tmp/dwarf-portable-executable/java
+DIR=/tmp/appdwarf/java
 JRE=$DIR/jre
 VER=$1
 mkdir -p $DIR

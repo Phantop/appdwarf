@@ -1,0 +1,34 @@
+#!/bin/sh
+tmp=$(mktemp -u)
+if [ "$1" = "-d" ]; then
+    shift
+    tail -n +11 "$1" | zstd -do "$tmp" &&
+    mv "$tmp" "$1"
+    chmod +x "$1"
+    exit
+fi
+
+if [ "$1" = "-p" ]; then
+    shift
+    prefix="$1 "
+    shift
+fi
+
+echo '#!/bin/sh' >> "$tmp"
+echo 'out=$(mktemp -t .zzXXXX.'"${1##*.}"\) >> "$tmp"
+cat >> "$tmp" << 'EOF'
+dir=$(dirname "$0")
+tail -n +11 "$0" | zstd -cd > "$out"
+chmod +x "$out"
+ln -s "$out" "$dir"
+trap "res=$?" 0 1 2 3 5 10 13 15
+EOF
+echo "$prefix"'$dir/$(basename $out) "$@"' >> "$tmp"
+cat >> "$tmp" << 'EOF'
+rm "$out" "$dir"/$(basename $out)
+exit $res
+EOF
+
+zstdmt --ultra -c22 --long "$1" >> "$tmp" || exit 1
+mv "$tmp" "$1"
+chmod +x "$1"

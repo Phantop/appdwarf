@@ -2,8 +2,8 @@
 PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
 DIR=/tmp/appdwarf
 mkdir -p $DIR
-LINK=$(curl -sL https://golang.org/dl | grep -om1 dl/go.\*linux-amd64.tar.gz)
-curl -L https://golang.org/"$LINK" | tar xz -C$DIR
+LINK=$(curl -sL https://go.dev/dl | grep -om1 dl/go.\*linux-amd64.tar.gz)
+curl -L https://go.dev/"$LINK" | tar xz -C$DIR
 
 cat > $DIR/go/AppRun << 'EOF'
 #!/bin/sh

@@ -6,7 +6,7 @@ HERE=$(dirname "$(readlink -f "${0}")")
 source "$HERE/headers"
 
 usage(){
-    echo "Usage: $(basename "$0") [option] [FILE/FOLDER/URL]"
+    echo "Usage: $(basename "$0") [option] [FILE/FOLDER/URL] [dwarfs option]"
     echo "  Compress a given AppDir (default)"
     echo "    -a,  --appimage     Convert a given AppImage to appdwarf" 
     echo "    -B,  --lookback     Change dwarfs block lookback amount"

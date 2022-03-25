@@ -1,32 +1,33 @@
 appdwarf
 =======
-These scripts automatically fetch the latest version of their respective program and compress them into a portable image using [dwarfs](https://github.com/mhx/dwarfs) in a similar format to an [AppImage.](https://appimage.org/)
+A tool to convert an AppDir or an existing [AppImage](https://appimage.org/) file,
+either as a local file or from a URL, into a highly compressed portable image using
+[dwarfs](https://github.com/mhx/dwarfs).
 
-The titular `appdwarf` utility supports both converting an AppDir or an existing AppImage file, either as a local file or from a URL, and is used similarly to how 'appimagetool' is.
+This is a small script and the bulk of the work is in the original `dwarfs` project,
+so all credit deserves to go there and I can not guarantee this script will function
+with out issues.
 
 ## Requirements
 
 In order to create the images, you will need:
 
-- [dwarfs](https://github.com/mhx/dwarfs), specifically the `dwarfs` and `mkdwarfs` utilities (`dwarfs2` works, but you must either edit the script or link `dwarfs` to it)
+- [dwarfs](https://github.com/mhx/dwarfs), specifically the `dwarfs` and `mkdwarfs` utilities.
+    - This may in turn require further dependencies, and specifically relies on the presence of FUSE for mounting images.
 
+If you only wish to run an existing image, only `dwarfs` is needed in PATH.
 
-If you only wish to run an existing image, only `dwarfs` (or `dwarfs2`) is needed.
+## How to create an appdwarf
 
-## How to create portable executables
+For your own programs, simply create an AppImage-style AppDir and run `appdwarf {directory}`. 
+You can also invoke `appdwarf -a {appimage}` to convert an apimage. 
+I suggest checking the help (listed via `appdwarf --help`) for other options.
 
-For your own programs, simply create an AppImage-style AppDir and run `appdwarf {directory}` or use one of the additional options (listed via `appdwarf --help`) to convert an existing AppImage to appdwarf.
+The apps folder contains other scripts for specific programs that will download all necessary files and create a resulting appdwarf in the same folder.
 
-The other scripts for specific programs will download all necessary files and create a resulting appdwarf in the same folder.
+## Known Issues
 
-## Notes
-
-Keep in mind that this project is new and it has not been thoroughly tested. Please report any problems you find.
-
-## Credits
-
-[wine-portable-executable](https://github.com/Kron4ek/wine-portable-executable) and [Wine-Builds](https://github.com/Kron4ek/Wine-Builds) by [Kron4ek](https://github.com/Kron4ek)
-
-[dwarfs](https://github.com/mhx/dwarfs) by [mhx](https://github.com/mhx)
-
-Java builds from [AdoptOpenJDK](https://adoptopenjdk.net/)
+- Some images may not unmount properly under the default, combined mounting scheme due
+to the inability to use lazy unmounting and some programs still making use of the filesystem
+when `fusermount -u` is run.
+    - Can be worked around with the separate header at the cost of memory/CPU usage.

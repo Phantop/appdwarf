@@ -5,8 +5,8 @@ mkdir -p $DIR
 
 LINK="$(curl https://api.github.com/repos/GloriousEggroll/proton-ge-custom/releases | grep -om1 http.\*tar.gz)"
 curl -L "$LINK" | tar xz -C$DIR
-mv $DIR/Proton*/files/* $DIR
-rm -rf $DIR/Proton*/
+mv $DIR/GE-Proton*/files/* $DIR
+rm -rf $DIR/GE-Proton*/
 
 wget -O$DIR/winetricks https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
 chmod +x $DIR/winetricks

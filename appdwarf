@@ -28,9 +28,12 @@ appimage() {
     then
         chmod +x "$1"
         rm -rf squashfs-root
-        ./"$1" --appimage-extract || exit 1
+        case $1 in
+            /*) "$1" --appimage-extract || exit 1 ;;
+            *) ./"$1" --appimage-extract || exit 1 ;;
+        esac
         dwarf squashfs-root "${@:2}"
-        rm -rf squashfs-root
+        rm -rf squashfs-root "$1"
         mv squashfs-root.sh "$(basename "$1" .AppImage)".sh
     else
         echo "$1" is not a valid file
@@ -82,7 +85,6 @@ do
                 wget "$2" -O "$file" || exit 1
             fi
             appimage "$file" "${@:3}"
-            rm "$file"
             exit 0
             ;;
         --) 

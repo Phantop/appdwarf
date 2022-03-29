@@ -2,8 +2,9 @@
 PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
 DIR=/tmp/appdwarf/dotnet
 mkdir -p $DIR
-VER=$(curl https://dotnetcli.azureedge.net/dotnet/Runtime/LTS/latest.version)
-curl https://dotnetcli.azureedge.net/dotnet/Runtime/$VER/dotnet-runtime-$VER-linux-x64.tar.gz | tar xz -C$DIR
+LINK=https://dotnetcli.azureedge.net/dotnet/Runtime
+VER=$(curl $LINK/LTS/latest.version)
+curl $LINK/$VER/dotnet-runtime-$VER-linux-x64.tar.gz | tar xz -C$DIR
 ln -s dotnet $DIR/AppRun
 appdwarf $DIR
 mv $DIR.sh dotnet

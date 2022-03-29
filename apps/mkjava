@@ -15,7 +15,7 @@ cat > $JRE/AppRun << 'EOF'
 HERE=$(dirname $(readlink -f "${0}"))
 export LD_LIBRARY_PATH="${HERE}":$PATH
 "${HERE}"/bin/java $@
-rm -r ~/javasharedresources
+rm -rf ~/javasharedresources
 EOF
 chmod +x $JRE/AppRun
 

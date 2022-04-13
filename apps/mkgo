@@ -1,18 +1,12 @@
-#!/bin/bash
+#!/bin/sh
 PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
 DIR=/tmp/appdwarf
 mkdir -p $DIR
 LINK=$(curl -sL https://go.dev/dl | grep -om1 dl/go.\*linux-amd64.tar.gz)
 curl -L https://go.dev/"$LINK" | tar xz -C$DIR
 
-cat > $DIR/go/AppRun << 'EOF'
-#!/bin/sh
-HERE=$(dirname $(readlink -f "${0}"))
-export LD_LIBRARY_PATH="${HERE}":$PATH
-"${HERE}"/bin/go $@
-EOF
-
-chmod +x $DIR/go/AppRun
+cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR/go
+sed 5s#/#/bin/# $DIR/go/AppRun
 
 appdwarf $DIR/go
 mv $DIR/go.sh go

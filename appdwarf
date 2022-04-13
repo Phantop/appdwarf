@@ -1,61 +1,62 @@
-#!/bin/bash
-set -eo pipefail
-IFS=$'\n\t'
-VER=2
+#!/bin/sh
+set -e
+IFS=$(printf '\n\t')
+VER=2.5
+BACK=5
 HERE=$(dirname "$(readlink -f "${0}")")
-source "$HERE/headers"
+. "$HERE/headers" && header || exit 1
 
-usage(){
+if test $# -eq 0; then
+    tput setaf 3
     echo "Usage: $(basename "$0") [option] [FILE/FOLDER/URL] [dwarfs option]"
     echo "  Compress a given AppDir (default)"
+    tput setaf 7
     echo "    -a,  --appimage     Convert a given AppImage to appdwarf" 
     echo "    -B,  --lookback     Change dwarfs block lookback amount"
     echo "    -f,  --folder       Make image mount to a specified folder instead of running AppRun"
     echo "    -s,  --separate     Use old, separated header format"
     echo "    -u,  --url          Fetch AppImage from URL and convert to appdwarf"
-
+    echo
+    tput setaf 4
     echo "    -h,  --help         Print this help text"
     echo "    -v,  --version      Print the appdwarf version"
-}
+    exit 0
+fi
 
 dwarf() {
-    mkdwarfs -i "$1" -o "$(realpath "$1").sh" -B"$back" "${@:2}" --header "$HEAD"
+    mkdwarfs -i "$@" -o "$(realpath "$1").sh" -B"$BACK" --header "$HEAD"
     chmod +x "$(realpath "$1").sh"
 }
 
 appimage() {
-    if [[ -f "$1" ]]
-    then
-        chmod +x "$1"
-        rm -rf squashfs-root
-        case $1 in
-            /*) "$1" --appimage-extract || exit 1 ;;
-            *) ./"$1" --appimage-extract || exit 1 ;;
-        esac
-        dwarf squashfs-root "${@:2}"
-        rm -rf squashfs-root "$1"
-        mv squashfs-root.sh "$(basename "$1" .AppImage)".sh
-    else
+    if [ ! -f "$1" ]; then
+        tput setaf 1
         echo "$1" is not a valid file
         exit 1
     fi
+    chmod +x "$1"
+    rm -rf squashfs-root
+    case $1 in
+        /*) "$1" --appimage-extract || exit 1 ;;
+        *) ./"$1" --appimage-extract || exit 1 ;;
+    esac
+    file="$1"
+    shift
+    dwarf squashfs-root "$@"
+    rm -rf squashfs-root "$file"
+    mv squashfs-root.sh "$(basename "$file" .AppImage)".sh
+    exit 0
 }
 
-
-################################################################
-
-header
-back=5
 
 while true
 do
     case "$1" in
         --help | -h) 
-            usage
-            exit 0
+            exec appdwarf
             ;;
         --version | -v) 
-            tput setaf 2
+            tput setaf 5
             echo appdwarf v"$VER"
             echo Maintained by phantop.
             exit 0
@@ -65,7 +66,7 @@ do
             shift 2
             ;;
         --lookback | -B) 
-            back=$2
+            BACK=$2
             shift 2
             ;;
         --separate | -s) 
@@ -74,18 +75,19 @@ do
             ;;
 
         --appimage | -a) 
-            appimage "${@:2}"
-            exit 0
+            shift
+            appimage "$@"
             ;;
         --url | -u)
-            file=$(basename "$2")
+            shift
+            file=$(basename "$1")
             if which aria2c; then
-                aria2c -x16 -s16 "$2" -o "$file" || exit 1
+                aria2c -x16 -s16 "$1" -o "$file" || exit 1
             else
-                wget "$2" -O "$file" || exit 1
+                wget "$1" -O "$file" || exit 1
             fi
-            appimage "$file" "${@:3}"
-            exit 0
+            shift
+            appimage "$file" "$@"
             ;;
         --) 
             shift; break;;
@@ -94,10 +96,4 @@ do
     esac
 done
 
-if test $# -eq 0; then
-    usage
-    exit 0
-else
-    dwarf "$@"
-    exit 0
-fi
+dwarf "$@"

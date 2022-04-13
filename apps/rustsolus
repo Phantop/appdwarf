@@ -1,25 +1,15 @@
-#!/bin/bash
+#!/bin/sh
 PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
 DIR=/tmp/appdwarf/rust
 mkdir -p $DIR
 
 eopkg fc -o $DIR cargo rust
-unzip -o $DIR/cargo* -d$DIR
-tar xJf $DIR/install.tar.xz -C$DIR
-unzip -o $DIR/rust* -d$DIR
-tar xJf $DIR/install.tar.xz -C$DIR
-rm $DIR/*
+parallel "unzip -op {} install.tar.xz | tar xJf - -C$DIR" ::: $DIR/*.eopkg 
+rm $DIR/*.eopkg
 rm -r $DIR/usr/lib64/rustlib/i686-unknown-linux-gnu
 
-cat > $DIR/usr/AppRun << 'EOF'
-#!/bin/sh
-HERE=$(dirname $(readlink -f "${0}"))
-export PATH="${HERE}/bin":$PATH
-export LD_LIBRARY_PATH="${HERE}"/lib64:$LD_LIBRARY_PATH
-"${HERE}"/bin/$APPDWARF_CMD $@
-EOF
-
-chmod +x $DIR/usr/AppRun
+cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR/usr
+sed -i 5s#/#/bin/# $DIR/usr/AppRun
 
 appdwarf $DIR/usr
 mv $DIR/usr.sh cargo

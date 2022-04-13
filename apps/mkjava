@@ -1,25 +1,18 @@
-#!/bin/bash
+#!/bin/sh
 PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
 DIR=/tmp/appdwarf/java
-JRE=$DIR/jre
-VER=$1
 mkdir -p $DIR
-
-LINK=https://api.adoptium.net/v3/binary/latest/$1/ga/linux/x64/jdk/hotspot/normal/eclipse
-curl -L "$LINK" | tar xz -C$DIR
-$DIR/jdk*/bin/jlink --add-modules ALL-MODULE-PATH --output $JRE --strip-debug --no-man-pages --no-header-files --compress=0
-
-
-cat > $JRE/AppRun << 'EOF'
-#!/bin/sh
-HERE=$(dirname $(readlink -f "${0}"))
-export LD_LIBRARY_PATH="${HERE}":$PATH
-"${HERE}"/bin/java $@
-rm -rf ~/javasharedresources
-EOF
-chmod +x $JRE/AppRun
-
+VER=$1
 shift
-appdwarf $JRE $@
-mv $JRE.sh java"$VER"
+
+LINK=https://api.adoptium.net/v3/binary/latest/$VER/ga/linux/x64/jdk/hotspot/normal/eclipse
+curl -L "$LINK" | tar xz -C$DIR
+mv $DIR/jdk* $DIR/jdk
+$DIR/jdk/bin/jlink --add-modules ALL-MODULE-PATH --output $DIR/jre --strip-debug --no-man-pages --no-header-files --compress=0
+
+cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR/jre
+sed -i 5s#/#/bin/# $DIR/jre/AppRun
+
+appdwarf $DIR/jre "$@"
+mv $DIR/jre.sh java"$VER"
 rm -rf $DIR

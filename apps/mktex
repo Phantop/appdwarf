@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 PATH="$(dirname "$(readlink -f "${0}")")/..":"$PATH"
 DIR=/tmp/appdwarf
 mkdir -p $DIR
@@ -41,6 +41,10 @@ tlpdbopt_w32_multi_user 1
 EOF
 
 $DIR/tl/install-tl -profile $DIR/tl/prof
+
+cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR/tex
+sed -i 3s#/bin#/bin/x86_64-linux# $DIR/tex/AppRun
+sed -i 5s#/#/bin/x86_64-linux# $DIR/tex/AppRun
 
 cat > $DIR/tex/AppRun << 'EOF'
 #!/bin/sh

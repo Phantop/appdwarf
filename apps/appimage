@@ -1,2 +1,2 @@
-#!/bin/bash
-./github https://raw.githubusercontent.com/AppImage/appimage.github.io/master/apps/$1.md
+#!/bin/sh
+./github https://raw.githubusercontent.com/AppImage/appimage.github.io/master/apps/"$1".md

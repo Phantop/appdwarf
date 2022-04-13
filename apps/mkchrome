@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
 DIR=/tmp/appdwarf
 mkdir -p $DIR

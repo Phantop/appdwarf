@@ -1,10 +1,11 @@
-#!/bin/bash
-if ! grep https <<< "$1"; then
+#!/bin/sh
+if ! echo "$1" | grep https ; then
     set -- "https://github.com/$1"
 fi
-LINK2="$(echo $1/releases | sed 's|github.com|api.github.com/repos|')"
-if ! grep github.com <<< "$1"; then
+LINK2="$(echo "$1"/releases | sed 's|github.com|api.github.com/repos|')"
+if ! echo "$1" | grep github.com; then
     LINK2="$(curl "$1" | grep -o https.\*releases | sed 's|github.com|api.github.com/repos|')"
 fi
 LINK3="$(curl "$LINK2" | grep -v arm64 | grep -v armh | grep -om1 https.\*AppImage)"
-appdwarf "${@:2}" -u "$LINK3"
+shift
+appdwarf "$@" -u "$LINK3"

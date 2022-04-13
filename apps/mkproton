@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
 DIR=/tmp/appdwarf/proton
 mkdir -p $DIR
@@ -12,8 +12,8 @@ wget -O$DIR/winetricks https://raw.githubusercontent.com/Winetricks/winetricks/m
 chmod +x $DIR/winetricks
 
 cat > $DIR/AppRun << 'EOF'
-#!/bin/bash
-HERE="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+#!/bin/sh
+HERE=$(dirname "$(readlink -f "${0}")")
 
 export WINE="${HERE}"/bin/wine
 export WINE64="${HERE}"/bin/wine64
@@ -35,6 +35,6 @@ fi
 EOF
 chmod +x $DIR/AppRun
 
-appdwarf $DIR $@
+appdwarf $DIR "$@"
 rm -rf $DIR
 mv $DIR.sh proton 

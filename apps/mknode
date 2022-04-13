@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
 DIR=/tmp/appdwarf
 mkdir -p $DIR
@@ -8,13 +8,9 @@ curl -L "$LINK" | bsdtar xf - -C$DIR
 
 mv $DIR/node* $DIR/node
 strip $DIR/node/bin/node
-cat > $DIR/node/AppRun << 'EOF'
-#!/bin/sh
-HERE=$(dirname $(readlink -f "${0}"))
-export PATH="${HERE}/bin":$PATH
-"${HERE}"/bin/$APPDWARF_CMD $@
-EOF
-chmod +x $DIR/node/AppRun
+
+cp "$(dirname "$(readlinjrek -f "${0}")")"/../AppRun $DIR/node
+sed -i 5s#/#/bin/# $DIR/node/AppRun
 
 appdwarf $DIR/node
 mv $DIR/node.sh node

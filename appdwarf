@@ -1,99 +1,62 @@
 #!/bin/sh
-set -e
-IFS=$(printf '\n\t')
-VER=2.5
-BACK=5
-HERE=$(dirname "$(readlink -f "${0}")")
-. "$HERE/headers" && header || exit 1
-
-if test $# -eq 0; then
-    tput setaf 3
-    echo "Usage: $(basename "$0") [option] [FILE/FOLDER/URL] [dwarfs option]"
-    echo "  Compress a given AppDir (default)"
+if [ $# -eq 0 ] || [ "$1" = -h ] || [ "$1" = --help ]; then # print help text
+    tput setaf 6
+    echo "Usage: $(basename "$0") [options] [FILE/FOLDER/URL] [dwarfs options]"
+    echo "Compress a given AppDir (default)"
     tput setaf 7
-    echo "    -a,  --appimage     Convert a given AppImage to appdwarf" 
-    echo "    -B,  --lookback     Change dwarfs block lookback amount"
-    echo "    -f,  --folder       Make image mount to a specified folder instead of running AppRun"
-    echo "    -s,  --separate     Use old, separated header format"
-    echo "    -u,  --url          Fetch AppImage from URL and convert to appdwarf"
-    echo
-    tput setaf 4
-    echo "    -h,  --help         Print this help text"
-    echo "    -v,  --version      Print the appdwarf version"
-    exit 0
+    echo " -a, --appimage     Convert a given AppImage to appdwarf" 
+    echo " -f, --folder       Make mount toggle image for a given folder"
+    echo " -s, --separate     Use old, separated header format"
+    echo " -u, --url          Fetch and convert AppImage from URL"
+    echo; tput setaf 5
+    echo " -h, --help         Print this help text"
+    echo " -v, --version      Print the appdwarf version"
+    exit
 fi
 
-dwarf() {
-    mkdwarfs -i "$@" -o "$(realpath "$1").sh" -B"$BACK" --header "$HEAD"
-    chmod +x "$(realpath "$1").sh"
-}
+set -e # exit on failure
+IFS=$(printf '\n\t') # smarter ifs
+. "$(dirname "$(readlink -f "${0}")")/headers" && header
 
-appimage() {
-    if [ ! -f "$1" ]; then
-        tput setaf 1
-        echo "$1" is not a valid file
-        exit 1
-    fi
-    chmod +x "$1"
-    rm -rf squashfs-root
-    case $1 in
-        /*) "$1" --appimage-extract || exit 1 ;;
-        *) ./"$1" --appimage-extract || exit 1 ;;
-    esac
-    file="$1"
-    shift
-    dwarf squashfs-root "$@"
-    rm -rf squashfs-root "$file"
-    mv squashfs-root.sh "$(basename "$file" .AppImage)".sh
-    exit 0
-}
-
-
-while true
-do
+while true; do # process args
     case "$1" in
-        --help | -h) 
-            exec appdwarf
-            ;;
-        --version | -v) 
-            tput setaf 5
-            echo appdwarf v"$VER"
-            echo Maintained by phantop.
-            exit 0
-            ;;
+        --appimage | -a) 
+            app="$2"
+            shift ;;
         --folder | -f) 
             header_folder "$(realpath "$2")"
-            shift 2
-            ;;
-        --lookback | -B) 
-            BACK=$2
-            shift 2
-            ;;
+            shift ;;
         --separate | -s) 
-            header_separate
-            shift
-            ;;
-
-        --appimage | -a) 
-            shift
-            appimage "$@"
-            ;;
+            header_separate ;;
         --url | -u)
-            shift
-            file=$(basename "$1")
-            if which aria2c; then
-                aria2c -x16 -s16 "$1" -o "$file" || exit 1
-            else
-                wget "$1" -O "$file" || exit 1
-            fi
-            shift
-            appimage "$file" "$@"
-            ;;
+            app=$(basename "$2")
+            aria2c -x16 -s16 "$2" -o "$app" || wget "$2" -O "$app"
+            shift ;;
+        --version | -v) 
+            tput setaf 4
+            echo appdwarf v2.9
+            echo Maintained by phantop.
+            exit ;;
         --) 
             shift; break;;
         *) 
             break;;
-    esac
+    esac; shift
 done
 
-dwarf "$@"
+if [ -n "$app" ]; then # handle and extract appimage input, if present
+    [ ! -f "$app" ] && tput setaf 1 && echo "$app" is not a valid file && exit 1
+    chmod +x "$app"
+    rm -rf squashfs-root
+    case "$app" in
+        /*)  "$app" --appimage-extract || exit 1 ;;
+        *) ./"$app" --appimage-extract || exit 1 ;;
+    esac
+    rm "$app"
+    set -- "$(basename "$app" .AppImage)" "$@"
+    mv squashfs-root "$1"
+fi
+
+[ ! -d "$1" ] && tput setaf 1 && echo "$1" is not a valid folder && exit 1
+mkdwarfs -o "$(realpath "$1").sh" -B5 --header "$HEAD" -i "$@"
+chmod +x "$(realpath "$1").sh"

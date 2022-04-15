@@ -5,8 +5,8 @@ either as a local file or from a URL, into a highly compressed portable image us
 [dwarfs](https://github.com/mhx/dwarfs).
 
 This is a small script and the bulk of the work is in the original `dwarfs` project,
-so all credit deserves to go there and I can not guarantee this script will function
-with out issues.
+so all credit deserves to go there. It has not been extensively tested so I cannot
+guarantee it will function without issue.
 
 ## Requirements
 

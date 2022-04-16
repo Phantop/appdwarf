@@ -2,4 +2,4 @@
 HERE=$(dirname "$(readlink -f "${0}")")
 export PATH="${HERE}":"${HERE}"/bin:"$PATH"
 export LD_LIBRARY_PATH="${HERE}"/lib64:"${HERE}"/lib:"$LD_LIBRARY_PATH"
-"${HERE}"/"$APPDWARF_CMD" "$@"
+exec "${HERE}"/"$APPDWARF_CMD" "$@"

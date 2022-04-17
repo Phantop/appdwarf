@@ -16,7 +16,7 @@ fi
 
 set -e # exit on failure
 IFS=$(printf '\n\t') # smarter ifs
-. "$(dirname "$(readlink -f "${0}")")/headers" && header
+HEAD="$(dirname "$(readlink -f "${0}")")/header"
 
 while true; do # process args
     case "$1" in
@@ -24,10 +24,12 @@ while true; do # process args
             app="$2"
             shift ;;
         --folder | -f) 
-            header_folder "$(realpath "$2")"
+            "$HEAD"_folder
+            HEAD=/tmp/dwarfhead
+            sed -i "2s|$|\"$2\"|" "$HEAD" 
             shift ;;
         --separate | -s) 
-            header_separate ;;
+            HEAD="$HEAD"_separate ;;
         --url | -u)
             app=$(basename "$2")
             aria2c -x16 -s16 "$2" -o "$app" || wget "$2" -O "$app"
@@ -48,10 +50,7 @@ if [ -n "$app" ]; then # handle and extract appimage input, if present
     [ ! -f "$app" ] && tput setaf 1 && echo "$app" is not a valid file && exit 1
     chmod +x "$app"
     rm -rf squashfs-root
-    case "$app" in
-        /*)  "$app" --appimage-extract || exit 1 ;;
-        *) ./"$app" --appimage-extract || exit 1 ;;
-    esac
+    "$(realpath "$app")" --appimage-extract || exit 1
     rm "$app"
     set -- "$(basename "$app" .AppImage)" "$@"
     mv squashfs-root "$1"

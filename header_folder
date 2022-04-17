@@ -1,0 +1,14 @@
+#!/bin/sh
+cat > /tmp/dwarfhead << 'EOF'
+#!/bin/sh
+DIR=
+if [ ! -d "$DIR" ]; then
+    mkdir "$DIR"
+    ARG="-o offset=auto -o tidy_strategy=swap -o workers=4"
+    dwarfs $ARG "$0" "$DIR" 2>/dev/null
+else
+    fusermount -u "$DIR"
+    rmdir "$DIR"
+fi
+exit
+EOF

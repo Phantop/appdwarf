@@ -3,7 +3,7 @@ set -e # exit on failure
 IFS=$(printf '\n\t') # smarter ifs
 [ "$1" = "-d" ] && tail -n+10 "$2" | zstd -cd | ifne sponge "$2" && exit
 [ "$1" = "-p" ] && p="$2" && shift 2 # save prefix if present
-{ cat << 'EOF';zstdmt -c19 "$@";} |sed "2s/$/${1##*.})/;7s/^/$p /"| ifne sponge "$1"
+{ cat << 'EOF'; zstdmt -c19 "$@"; } | sed "2s/$/${1##*.})/;7s/^/$p /" | sponge "$1"
 #!/bin/sh
 dir=$(dirname "$0") out=$(mktemp -t .zzXXXX.
 tail -n+10 "$0" | zstd -cd > "$out"

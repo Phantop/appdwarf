@@ -43,10 +43,3 @@ created when ran since some programs care about that, such as an emulator only
 running games of an expected file extension.
 
 `zzexe` requires `zstd` for both creating and running files and `moreutils` for creating them.
-
-## Known Issues
-
-- Some images may not unmount properly under the default, combined mounting scheme due
-to the inability to use lazy unmounting and some programs still making use of the filesystem
-when `fusermount -u` is run.
-    - Can be worked around with the separate header at the cost of memory/CPU usage.

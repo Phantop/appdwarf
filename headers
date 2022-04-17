@@ -27,7 +27,7 @@ if [ ! -d "$DIR" ]; then
 fi
 
 "$DIR/AppRun" "$@"
-fusermount -qu "$DIR"
+fusermount -quz "$DIR"
 rmdir "$DIR" 2> /dev/null
 exit
 EOF

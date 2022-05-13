@@ -5,7 +5,7 @@ if [ $# -eq 0 ] || [ "$1" = -h ] || [ "$1" = --help ]; then # print help text
     echo "Compress a given AppDir (default)"
     tput setaf 7
     echo " -a, --appimage     Convert a given AppImage to appdwarf" 
-    echo " -f, --folder       Make mount toggle image for a given folder"
+    echo " -f, --folder       Make image mount to a given folder (no AppRun)"
     echo " -s, --separate     Use old, separated header format"
     echo " -u, --url          Fetch and convert AppImage from URL"
     echo; tput setaf 5
@@ -35,9 +35,8 @@ while true; do # process args
             aria2c -x16 -s16 "$2" -o "$app" || wget "$2" -O "$app"
             shift ;;
         --version | -v) 
-            tput setaf 4
-            echo appdwarf v2.9
-            echo Maintained by phantop.
+            tput setaf 2; echo appdwarf v2.9
+            tput setaf 4; echo Built by July 🏳️‍🌈
             exit ;;
         --) 
             shift; break;;
@@ -47,15 +46,18 @@ while true; do # process args
 done
 
 if [ -n "$app" ]; then # handle and extract appimage input, if present
-    [ ! -f "$app" ] && tput setaf 1 && echo "$app" is not a valid file && exit 1
+    [ ! -f "$app" ] && tput setaf 1 && echo "$app" is not a valid file >&2 && exit 1
+    file -i "$app" | grep -qv x-executable && tput setaf 1 &&
+        echo "$app" is not an AppImage >&2 && exit 1
+
     chmod +x "$app"
     rm -rf squashfs-root
-    "$(realpath "$app")" --appimage-extract || exit 1
-    rm "$app"
+    "$(realpath "$app")" --appimage-extract
+
     set -- "$(basename "$app" .AppImage)" "$@"
     mv squashfs-root "$1"
 fi
 
-[ ! -d "$1" ] && tput setaf 1 && echo "$1" is not a valid folder && exit 1
+[ ! -d "$1" ] && tput setaf 1 && echo "$1" is not a valid folder >&2 && exit 1
 mkdwarfs -o "$(realpath "$1").sh" -B5 --header "$HEAD" -i "$@"
 chmod +x "$(realpath "$1").sh"

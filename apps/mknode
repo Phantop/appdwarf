@@ -9,7 +9,7 @@ curl -L "$LINK" | bsdtar xf - -C$DIR
 mv $DIR/node* $DIR/node
 strip $DIR/node/bin/node
 
-cp "$(dirname "$(readlinjrek -f "${0}")")"/../AppRun $DIR/node
+cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR/node
 sed -i 5s#/#/bin/# $DIR/node/AppRun
 
 appdwarf $DIR/node

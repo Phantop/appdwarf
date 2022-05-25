@@ -7,6 +7,7 @@ curl -L https://go.dev/"$LINK" | tar xz -C$DIR
 
 cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR/go
 sed -i 5s#/#/bin/# $DIR/go/AppRun
+sed -i '4a export GOPROXY=direct' $DIR/go/AppRun
 
 appdwarf $DIR/go
 mv $DIR/go.sh go

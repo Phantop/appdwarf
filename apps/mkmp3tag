@@ -9,7 +9,7 @@ aria2c "$LINK" -d $DIR -o exe
 rm $DIR/exe
 mv $DIR/Mp3tag.exe $DIR/mp3tag
 cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR
-sed -i '5s/ / wine /' $DIR/AppRun
+sed -i '4s/ / wine /' $DIR/AppRun
 
 appdwarf $DIR
 mv $DIR.sh mp3tag

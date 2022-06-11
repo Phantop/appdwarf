@@ -10,7 +10,7 @@ mv $DIR/node* $DIR/node
 strip $DIR/node/bin/node
 
 cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR/node
-sed -i 5s#/#/bin/# $DIR/node/AppRun
+sed -i 4s#/#/bin/# $DIR/node/AppRun
 
 appdwarf $DIR/node
 mv $DIR/node.sh node

@@ -43,15 +43,8 @@ EOF
 $DIR/tl/install-tl -profile $DIR/tl/prof
 
 cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR/tex
-sed -i 3s#/bin#/bin/x86_64-linux# $DIR/tex/AppRun
-sed -i 5s#/#/bin/x86_64-linux# $DIR/tex/AppRun
-
-cat > $DIR/tex/AppRun << 'EOF'
-#!/bin/sh
-HERE=$(dirname "$(readlink -f "${0}")")
-export PATH="${HERE}"/bin/x86_64-linux:"$PATH"
-"${HERE}"/bin/x86_64-linux/"$APPDWARF_CMD" "$@"
-EOF
+sed -i 2s#/bin#/bin/x86_64-linux# $DIR/tex/AppRun
+sed -i 4s#/#/bin/x86_64-linux# $DIR/tex/AppRun
 
 chmod +x $DIR/tex/AppRun
 

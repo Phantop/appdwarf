@@ -11,7 +11,7 @@ for i in cargo rustc rust-std-$ARCH/; do
     mv "$DIR/rust-nightly-$ARCH/$i"/* $DIR/rust; done
 
 cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR/rust
-sed -i 5s#/#/bin/# $DIR/rust/AppRun
+sed -i 4s#/#/bin/# $DIR/rust/AppRun
 
 appdwarf $DIR/rust
 mv $DIR/rust.sh cargo

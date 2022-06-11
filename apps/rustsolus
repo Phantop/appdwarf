@@ -9,7 +9,7 @@ rm $DIR/*.eopkg
 rm -r $DIR/usr/lib64/rustlib/i686-unknown-linux-gnu
 
 cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR/usr
-sed -i 5s#/#/bin/# $DIR/usr/AppRun
+sed -i 4s#/#/bin/# $DIR/usr/AppRun
 
 appdwarf $DIR/usr
 mv $DIR/usr.sh cargo

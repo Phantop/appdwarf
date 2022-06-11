@@ -1,5 +1,4 @@
 #!/bin/sh
-HERE=$(dirname "$(readlink -f "${0}")")
-export PATH="${HERE}":"${HERE}"/bin:"$PATH"
-export LD_LIBRARY_PATH="${HERE}"/lib64:"${HERE}"/lib:"$LD_LIBRARY_PATH"
-exec "${HERE}"/"$APPDWARF_CMD" "$@"
+export PATH="${APPDIR}":"${APPDIR}"/bin:"$PATH"
+export LD_LIBRARY_PATH="${APPDIR}"/lib64:"${APPDIR}"/lib:"$LD_LIBRARY_PATH"
+exec "$APPDIR/$ARGV0" "$@"

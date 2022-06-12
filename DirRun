@@ -1,0 +1,9 @@
+#!/bin/sh
+DIR=
+if [ ! -d "$DIR" ]; then
+    mkdir "$DIR"
+    bindfs --no-allow-other "$APPDIR" "$DIR"
+else
+    fusermount -u "$DIR"
+    rmdir "$DIR"
+fi

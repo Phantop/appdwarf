@@ -5,7 +5,6 @@ if [ $# -eq 0 ] || [ "$1" = -h ] || [ "$1" = --help ]; then # print help text
     echo "Compress a given AppDir (default)"
     tput setaf 7
     echo " -a, --appimage     Convert a given AppImage to appdwarf" 
-    echo " -f, --folder       Make image mount to a given folder (no AppRun)"
     echo " -u, --url          Fetch and convert AppImage from URL"
     echo; tput setaf 5
     echo " -h, --help         Print this help text"
@@ -20,17 +19,10 @@ HEAD="$(dirname "$(readlink -f "${0}")")/header"
 while true; do # process args
     case "$1" in
         --appimage | -a) 
-            app="$2"
-            shift ;;
-        --folder | -f) 
-            "$HEAD"_folder
-            HEAD=/tmp/dwarfhead
-            sed -i "2s|$|\"$2\"|" "$HEAD" 
-            shift ;;
+            app="$2" ;;
         --url | -u)
             app=$(basename "$2")
-            aria2c -x16 -s16 "$2" -o "$app" || wget "$2" -O "$app"
-            shift ;;
+            aria2c -x16 -s16 "$2" -o "$app" || wget "$2" -O "$app" ;;
         --version | -v) 
             tput setaf 2; echo appdwarf v3.0
             tput setaf 4; echo Built by July 🏳️‍🌈
@@ -39,7 +31,7 @@ while true; do # process args
             shift; break;;
         *) 
             break;;
-    esac; shift
+    esac; shift 2
 done
 
 if [ -n "$app" ]; then # handle and extract appimage input, if present

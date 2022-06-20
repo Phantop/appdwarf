@@ -1,52 +1,46 @@
 #!/bin/sh
-if [ $# -eq 0 ] || [ "$1" = -h ] || [ "$1" = --help ]; then # print help text
-    tput setaf 6
-    echo "Usage: $(basename "$0") [options] [FILE/FOLDER/URL] [dwarfs options]"
-    echo "Compress a given AppDir (default)"
-    tput setaf 7
-    echo " -a, --appimage     Convert a given AppImage to appdwarf" 
-    echo " -u, --url          Fetch and convert AppImage from URL"
-    echo; tput setaf 5
-    echo " -h, --help         Print this help text"
-    echo " -v, --version      Print the appdwarf version"
-    exit
-fi
-
 set -e # exit on failure
 IFS=$(printf '\n\t') # smarter ifs
 HEAD="$(dirname "$(readlink -f "${0}")")/header"
 
-while true; do # process args
-    case "$1" in
-        --appimage | -a) 
-            app="$2" ;;
-        --url | -u)
-            app=$(basename "$2")
-            aria2c -x16 -s16 "$2" -o "$app" || wget "$2" -O "$app" ;;
-        --version | -v) 
-            tput setaf 2; echo appdwarf v3.0
-            tput setaf 4; echo Built by July 🏳️‍🌈
-            exit ;;
-        --) 
-            shift; break;;
-        *) 
-            break;;
-    esac; shift 2
-done
+case "$1" in
+    -h | --help | '')
+        tput setaf 6
+        echo "Usage: $(basename "$0") [FILE/FOLDER/URL] [dwarfs options]"
+        tput setaf 3
+        echo " -h, --help         Print this help text"
+        echo " -v, --version      Print the appdwarf version"; exit ;;
+    --version | -v)
+        tput setaf 2; echo appdwarf v3.5
+        tput setaf 6; echo Built by July 🏳️‍🌈; exit ;;
+    -* )
+        tput setaf 1;  echo Invalid argument; exit 1
+esac
 
-if [ -n "$app" ]; then # handle and extract appimage input, if present
-    [ ! -f "$app" ] && tput setaf 1 && echo "$app" is not a valid file >&2 && exit 1
-    file -i "$app" | grep -qv x-executable && tput setaf 1 &&
-        echo "$app" is not an AppImage >&2 && exit 1
+if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
+    if [ ! -f "$1" ]; then # file doesn't exist, see if this is a url
+        app=$(basename "$1")
+        if aria2c -x16 -s16 "$1" -o "$app" || wget "$1" -O "$app"; then
+            shift
+            set -- "$app" "$@"
+        else
+            tput setaf 1; echo "$1" is not a valid file, folder, or url >&2
+            rm "$app" 2> /dev/null; exit 1
+        fi
+    fi
 
-    chmod +x "$app"
+    chmod +x "$1"
     rm -rf squashfs-root
-    "$(realpath "$app")" --appimage-extract
 
-    set -- "$(basename "$app" .AppImage)" "$@"
+    if ! "$(realpath "$1")" --appimage-extract 2> /dev/null; then 
+        tput setaf 4; echo "$1 is not an AppImage, it will be zzexe'd"
+        exec "$(dirname "$(readlink -f "${0}")")/zzexe" "$@"
+    fi
+
+    app="$(basename "$1" .AppImage)" shift
+    set -- "$app" "$@"
     mv squashfs-root "$1"
 fi
 
-[ ! -d "$1" ] && tput setaf 1 && echo "$1" is not a valid folder >&2 && exit 1
 mkdwarfs -o "$(realpath "$1").sh" -B5 --header "$HEAD" -i "$@"
 chmod +x "$(realpath "$1").sh"

@@ -6,13 +6,8 @@ curl http://musl.cc/x86_64-linux-musl-native.tgz | tar xz -C$DIR
 mv $DIR/x86_64-linux-musl-native $DIR/musl
 ln -s gcc $DIR/musl/bin/cc
 
-cat > $DIR/musl/AppRun << 'EOF'
-#!/bin/sh
-HERE=$(dirname $(readlink -f "${0}"))
-export PATH="${HERE}/bin":$PATH
-"$@"
-EOF
-chmod +x $DIR/musl/AppRun
+cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR/musl
+sed -i '4s#"$APPDIR/$ARGV0" ##' $DIR/musl/AppRun
 
 appdwarf $DIR/musl
 mv $DIR/musl.sh musl

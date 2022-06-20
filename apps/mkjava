@@ -5,10 +5,9 @@ mkdir -p $DIR
 VER=$1
 shift
 
-LINK=https://api.adoptium.net/v3/binary/latest/$VER/ga/linux/x64/jdk/hotspot/normal/eclipse
+LINK=https://api.adoptium.net/v3/binary/latest/$VER/ga/linux/x64/jre/hotspot/normal/eclipse
 curl -L "$LINK" | tar xz -C$DIR
-mv $DIR/jdk* $DIR/jdk
-$DIR/jdk/bin/jlink --add-modules ALL-MODULE-PATH --output $DIR/jre --strip-debug --no-man-pages --no-header-files --compress=0
+mv $DIR/jdk* $DIR/jre
 
 cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR/jre
 sed -i 4s#/#/bin/# $DIR/jre/AppRun

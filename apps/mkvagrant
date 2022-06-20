@@ -1,9 +1,0 @@
-#!/bin/sh
-PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
-DIR=/tmp/appdwarf
-mkdir -p $DIR
-LINK=https://releases.hashicorp.com/vagrant
-VER=$(curl -L $LINK | grep -m1 'href.*[0-9]' | cut -d/ -f3)
-LINK2=https://releases.hashicorp.com/vagrant/$VER/vagrant_"$VER"_linux_amd64.zip
-curl "$LINK2" | bsdtar xf - -C$DIR
-appdwarf -a $DIR/vagrant

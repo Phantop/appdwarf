@@ -1,3 +1,0 @@
-#!/bin/sh
-ID="$(curl -L https://ungoogled-software.github.io/ungoogled-chromium-binaries | grep -m7 href | tail -n 1 | awk -F'[<>]' '{print $5}')"
-appdwarf -u "https://github.com/clickot/ungoogled-chromium-binaries/releases/download/$ID/ungoogled-chromium_$ID.AppImage"

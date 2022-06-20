@@ -1,4 +1,4 @@
 #!/bin/sh
-export PATH="${APPDIR}":"${APPDIR}"/bin:"$PATH"
+export PATH="${APPDIR}"/bin:"$PATH"
 export LD_LIBRARY_PATH="${APPDIR}"/lib64:"${APPDIR}"/lib:"$LD_LIBRARY_PATH"
 exec "$APPDIR/$ARGV0" "$@"

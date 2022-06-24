@@ -1,21 +1,57 @@
 #!/bin/sh
+#shellcheck disable=SC2086
 set -e # exit on failure
 IFS=$(printf '\n\t') # smarter ifs
-HEAD="$(dirname "$(readlink -f "${0}")")/header"
+
+header() {
+    ARGV0="$(basename "$0")"; APPDIR="/tmp/dwarf_$ARGV0$(echo "$0"|md5sum|head -c5)" 
+    export APPIMAGE="$0" OWD="$PWD" ARGV0 APPDIR
+    args="-o offset=auto -o tidy_strategy=swap -o workers=4"
+    [ ! -d "$APPDIR" ] && mkdir "$APPDIR" && dwarfs $args "$0" "$APPDIR" 2>/dev/null
+    "$APPDIR/AppRun" "$@"
+    res=$?
+    fusermount -quz "$APPDIR"
+    rmdir "$APPDIR" 2>/dev/null
+    exit $res
+}
+
+zzexe() {
+    [ "$1" = "-d" ] && awk 'f;/^exit \$res$/{f=1}' "$2" | head -c-1 | zstd -cd | ifne sponge "$2" && exit
+    [ "$1" = "-p" ] && p="$2" && shift 2 # save prefix if present
+    zstdmt -cq19 "$@" | ifne sponge "$1"
+    type zzexe_header | sed 's/^ *//' | tail -n+4 | head -n-1 | cat - "$1" | ifne sponge "$1"
+    sed -i -e '1i #!/bin/sh' -e "1s/);$/${1##*[./]})/" -e "6s/^/$p /" "$1"
+    exit
+}
+
+zzexe_header() {
+    dir=$(dirname "$0") out=$(mktemp -t .zzXXXX.)
+    awk "f;/^exit \\$res$/{f=1}" "$0" | head -c-1 | zstd -cd > "$out"
+    chmod +x "$out"
+    ln -s "$out" "$dir"
+    trap : 0 1 2 3 6 14 15
+    "$dir/$(basename "$out")" "$@"
+    res=$?
+    rm "$out" "$dir/$(basename "$out")"
+    exit $res
+}
 
 case "$1" in
-    -h | --help | '')
-        tput setaf 6
-        echo "Usage: $(basename "$0") [FILE/FOLDER/URL] [dwarfs options]"
-        tput setaf 3
-        echo " -h, --help         Print this help text"
-        echo " -v, --version      Print the appdwarf version"; exit ;;
-    --version | -v)
-        tput setaf 2; echo appdwarf v3.5
+    -d )
+        zzexe "$@" ;;
+    --version | -v )
+        tput setaf 2; echo appdwarf v3.6
         tput setaf 6; echo Built by July 🏳️‍🌈; exit ;;
-    -* )
-        tput setaf 1;  echo Invalid argument; exit 1
+    -* | '' )
+        tput setaf 6
+        echo "Usage: $(basename "$0") [FILE/FOLDER/URL] [compression options]"
+        tput setaf 3
+        echo "  -d              Decompress a zzexe'd file"
+        echo "  -h, --help      Print this help text"
+        echo "  -v, --version   Print the appdwarf version"; exit ;;
 esac
+
+[ "$(basename "$0")" = zzexe ] && zzexe "$@"
 
 if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
     if [ ! -f "$1" ]; then # file doesn't exist, see if this is a url
@@ -34,7 +70,7 @@ if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
 
     if ! "$(realpath "$1")" --appimage-extract 2> /dev/null; then 
         tput setaf 4; echo "$1 is not an AppImage, it will be zzexe'd"
-        exec "$(dirname "$(readlink -f "${0}")")/zzexe" "$@"
+        zzexe "$@"
     fi
 
     app="$(basename "$1" .AppImage)" shift
@@ -42,5 +78,10 @@ if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
     mv squashfs-root "$1"
 fi
 
-mkdwarfs -o "$(realpath "$1").sh" -B5 --header "$HEAD" -i "$@"
+head="$(mktemp)"
+echo '#!/bin/sh' > $head
+type header | tail -n+4 | head -n-1 | sed 's/^ *//' >> $head
+
+mkdwarfs -o "$(realpath "$1").sh" -B5 --header $head -i "$@"
+rm $head
 chmod +x "$(realpath "$1").sh"

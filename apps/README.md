@@ -10,7 +10,6 @@ These scripts are all targeted for using on x86_64 Linux systems with GLIBC.
 
 Script | Function | Source
 --- | --- | ---
-`appimage ` | Can fetch and convert AppImages by name from AppImageHub or from a given GitHub repo| <https://appimage.github.io>
 `mkchrome ` | Latest official Chromium build | <https://download-chromium.appspot.com>
 `mkgo     ` | Latest official Go release | <https://go.dev>
 `mkjava   ` | Accepts an argument for Java version and obtains that build from Adoptium | <https://adoptium.net>

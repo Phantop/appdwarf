@@ -19,9 +19,11 @@ If you only wish to run an existing image, only `dwarfs` is needed in PATH.
 
 ## How to create an appdwarf
 
-For your own programs, simply create an AppImage-style AppDir and run `appdwarf {directory}`. 
-You can also invoke `appdwarf -a {AppImage}` to convert an AppImage.
-I suggest checking the help (listed via `appdwarf --help`) for other options.
+`appdwarf` can take both AppImage files and extracted AppDirs as input. If a file
+or folder is not found, `appdwarf` will also accept direct URLs to AppImages, links
+or names to GitHub repos with AppImages in their releases page, or names of programs
+that meet the GitHub criteria on AppImageHub. Any files that are found but are not
+AppImages will be compressed using `zzexe`.
 
 The apps folder contains other scripts for specific programs that will download all
 necessary files and create a resulting appdwarf in the same folder.

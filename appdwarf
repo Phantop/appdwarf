@@ -1,11 +1,11 @@
 #!/bin/sh
-#shellcheck disable=SC2086
+#shellcheck disable=SC2086,SC2155
 set -e # exit on failure
 IFS=$(printf '\n\t') # smarter ifs
 
 header() {
-    ARGV0="$(basename "$0")"; APPDIR="/tmp/dwarf_$ARGV0$(echo "$0"|md5sum|head -c5)" 
-    export APPIMAGE="$0" OWD="$PWD" ARGV0 APPDIR
+    APPDIR="/tmp/dwarf_$(basename "$0")$(echo "$0"|md5sum|head -c5)"
+    export APPDIR APPIMAGE="$(realpath "$0")" ARGV0="$0" OWD="$PWD"
     args="-o offset=auto -o tidy_strategy=swap -o workers=4"
     [ ! -d "$APPDIR" ] && mkdir "$APPDIR" && dwarfs $args "$0" "$APPDIR" 2>/dev/null
     "$APPDIR/AppRun" "$@"
@@ -40,11 +40,11 @@ case "$1" in
     -d )
         zzexe "$@" ;;
     --version | -v )
-        tput setaf 2; echo appdwarf v3.6
+        tput setaf 2; echo appdwarf 2022.06.25
         tput setaf 6; echo Built by July 🏳️‍🌈; exit ;;
     -* | '' )
         tput setaf 6
-        echo "Usage: $(basename "$0") [FILE/FOLDER/URL] [compression options]"
+        echo "Usage: $(basename "$0") [APP/FILE/FOLDER/URL] [compression options]"
         tput setaf 3
         echo "  -d              Decompress a zzexe'd file"
         echo "  -h, --help      Print this help text"
@@ -55,12 +55,30 @@ esac
 
 if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
     if [ ! -f "$1" ]; then # file doesn't exist, see if this is a url
-        app=$(basename "$1")
+        if ! echo "$1" | grep / ; then # AppImageHub
+            echo "Checking AppImageHub for this program..."
+            app=https://github.com/AppImage/appimage.github.io/raw/master/apps/$1.md
+            shift
+            set -- "$(curl -L "$app" | grep -o https.\*releases | sed 's|/releases$||')" "$@"
+        elif ! echo "$1" | grep https ; then # GitHub in Author/Repo format
+            echo "Assuming this is a GitHub repo..."
+            app=$1
+            set -- "https://github.com/$1" "$@"
+        fi
+
+        if echo "$1" | grep 'https://github.com/[^/]*/[^/]*/*$'; then # GitHub url
+            echo "Assuming this is a GitHub repo..."
+            app="$(echo "${1%/}"/releases | sed 's|github.com|api.github.com/repos|')"
+            shift
+            set -- "$(curl "$app" | grep -v arm | grep -om1 https.\*AppImage)" "$@"
+        fi
+
+        app=$(basename "$1") # actually try to get the appimage
         if aria2c -x16 -s16 "$1" -o "$app" || wget "$1" -O "$app"; then
             shift
             set -- "$app" "$@"
         else
-            tput setaf 1; echo "$1" is not a valid file, folder, or url >&2
+            tput setaf 1; echo "Unable to find valid AppImage or AppDir" >&2
             rm "$app" 2> /dev/null; exit 1
         fi
     fi

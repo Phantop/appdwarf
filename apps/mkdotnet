@@ -5,7 +5,9 @@ mkdir -p $DIR
 LINK=https://dotnetcli.azureedge.net/dotnet/Runtime
 VER=$(curl $LINK/LTS/latest.version)
 curl "$LINK/$VER/dotnet-runtime-$VER-linux-x64.tar.gz" | tar xz -C$DIR
+
 ln -s dotnet $DIR/AppRun
-appdwarf $DIR
+
+appdwarf $DIR "$@"
 mv $DIR.sh dotnet
 rm -rf $DIR

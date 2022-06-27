@@ -1,18 +1,17 @@
 #!/bin/sh
 PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
-DIR=/tmp/appdwarf
+DIR=/tmp/appdwarf/pypy
 mkdir -p $DIR
 LINK="https://buildbot.pypy.org/nightly/py3.9/pypy-c-jit-latest-linux64.tar.bz2"
-curl -L "$LINK" | tar xfj - -C$DIR
+curl -L "$LINK" | tar xj -C$DIR
 
-mv $DIR/pypy* $DIR/pypy
-ln -s bin/pypy $DIR/pypy/AppRun
+mv $DIR/pypy*/* $DIR
+rm $DIR/bin/*.debug
+ln -s bin/pypy $DIR/AppRun
 
-rm $DIR/pypy/bin/*.debug
+$DIR/AppRun -m ensurepip
+$DIR/AppRun -m pip install pipx
 
-$DIR/pypy/AppRun -m ensurepip
-$DIR/pypy/AppRun -m pip install pipx
-
-appdwarf $DIR/pypy
-mv $DIR/pypy.sh pypy
-rm -rf $DIR/pypy
+appdwarf $DIR
+mv $DIR.sh pypy
+rm -rf $DIR

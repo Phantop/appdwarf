@@ -1,14 +1,14 @@
 #!/bin/sh
 PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
-DIR=/tmp/appdwarf
+DIR=/tmp/appdwarf/go
 mkdir -p $DIR
-LINK=$(curl -sL https://go.dev/dl | grep -om1 dl/go.\*linux-amd64.tar.gz)
-curl -L https://go.dev/"$LINK" | tar xz -C$DIR
+LINK=$(curl -sL https://go.dev/dl | grep -m1 linux | cut -d\" -f4)
+curl -L https://go.dev/"$LINK" | tar xz -C$DIR/..
 
-cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR/go
-sed -i '4i export GOPROXY=direct' $DIR/go/AppRun
-sed -i 5s#/#/bin/# $DIR/go/AppRun
+cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR
+sed -i '4i export GOPROXY=direct' $DIR/AppRun
+sed -i 5s#/#/bin/# $DIR/AppRun
 
-appdwarf $DIR/go
-mv $DIR/go.sh go
-rm -rf $DIR/go
+appdwarf $DIR "$@"
+mv $DIR.sh go
+rm -rf $DIR

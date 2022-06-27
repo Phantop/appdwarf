@@ -1,18 +1,17 @@
 #!/bin/sh
 PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
-DIR=/tmp/appdwarf
+DIR=/tmp/appdwarf/rust
 ARCH=x86_64-unknown-linux-gnu
 mkdir -p $DIR
-LINK=https://static.rust-lang.org/dist/rust-nightly-$ARCH.tar.gz
+LINK=https://static.rust-lang.org/dist/rust-beta-$ARCH.tar.gz
 curl -L $LINK | tar xz -C$DIR
 
-mkdir $DIR/rust
-for i in cargo rustc rust-std-$ARCH/; do
-    mv "$DIR/rust-nightly-$ARCH/$i"/* $DIR/rust; done
+$DIR/rust-beta-$ARCH/install.sh --prefix=$DIR --components=cargo,rustc,rust-std-$ARCH
+rm -rf $DIR/rust-beta-$ARCH
 
-cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR/rust
-sed -i 4s#/#/bin/# $DIR/rust/AppRun
+cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR
+sed -i 4s#/#/bin/# $DIR/AppRun
 
-appdwarf $DIR/rust
-mv $DIR/rust.sh cargo
-rm -rf $DIR/rust*
+appdwarf $DIR
+mv $DIR.sh cargo
+rm -rf $DIR

@@ -1,6 +1,6 @@
 #!/bin/sh
 PATH="$(dirname "$(readlink -f "${0}")")/..":"$PATH"
-DIR=/tmp/appdwarf
+DIR=/tmp/appdwarf/tex
 mkdir -p $DIR
 LINK=https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
 curl -L $LINK | tar xz -C$DIR
@@ -42,12 +42,12 @@ EOF
 
 $DIR/tl/install-tl -profile $DIR/tl/prof
 
-cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR/tex
-sed -i 2s#/bin#/bin/x86_64-linux# $DIR/tex/AppRun
-sed -i 4s#/#/bin/x86_64-linux# $DIR/tex/AppRun
+cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR
+sed -i 2s#/bin#/bin/x86_64-linux# $DIR/AppRun
+sed -i 4s#/#/bin/x86_64-linux# $DIR/AppRun
 
-chmod +x $DIR/tex/AppRun
+chmod +x $DIR/AppRun
 
-appdwarf $DIR/tex
-mv $DIR/tex.sh tex
-rm -rf $DIR/tex $DIR/tl
+appdwarf $DIR
+mv $DIR.sh tex
+rm -rf $DIR

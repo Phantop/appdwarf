@@ -2,28 +2,18 @@
 PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
 DIR=/tmp/appdwarf/wine
 mkdir -p $DIR
-
-LINK="$(curl https://api.github.com/repos/Kron4ek/Wine-Builds/releases | grep -om1 http.\*-staging-tkg-amd64.tar.xz)"
-[ "$1" = "proton" ] && LINK="$(curl https://api.github.com/repos/GloriousEggroll/proton-ge-custom/releases | grep -om1 http.\*tar.gz)" && shift
+VER=Kron4ek/Wine-Builds
+[ "$1" = "proton" ] && VER=GloriousEggroll/proton-ge-custom && shift
+LINK=$(curl -L api.github.com/repos/$VER/releases | jq .[0].assets[1] | grep -om1 g.\*tar..z)
 curl -L "$LINK" | bsdtar xf - -C$DIR
+
 mv $DIR/wine*/* $DIR/GE-Proton*/files/* $DIR
-rm -rf $DIR/wine*/ $DIR/GE-Proton*/
+cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR
+sed -i 4s#/#/bin/# $DIR/AppRun
 
-wget -O$DIR/bin/winetricks https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
-chmod +x $DIR/bin/winetricks
-
-cat > $DIR/AppRun << 'EOF'
-#!/bin/sh
-export WINE="$APPDIR"/bin/wine
-export WINE64="$WINE"64 WINESERVER="$WINE"server WINETRICKS="$WINE"tricks
-export DXVK_STATE_CACHE_PATH=~/.cache DXVK_LOG_PATH=none
-
-[ "$1" = "winetricks" ] && shift && exec "$WINETRICKS" "$@"
-"$WINE64" "$@"
-"$WINESERVER" -w
-EOF
-chmod +x $DIR/AppRun
+t=winetricks; wget -O$DIR/bin/$t github.com/$t/$t/raw/master/src/$t
+chmod +x $DIR/bin/$t
 
 appdwarf $DIR "$@"
-rm -r $DIR
 mv $DIR.sh wine
+rm -rf $DIR

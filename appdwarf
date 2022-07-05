@@ -37,7 +37,7 @@ zzexe_header() {
 }
 
 case "$1" in
-    -d )
+    -d | -p )
         zzexe "$@" ;;
     --version | -v )
         tput setaf 2; echo appdwarf 2022.06.25

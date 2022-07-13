@@ -1,15 +1,12 @@
 #!/bin/sh
-PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
-DIR=/tmp/appdwarf/node
-mkdir -p $DIR
+APP=${0#./mk}
+DIR=/tmp/appdwarf/$APP
+mkdir -p "$DIR"
 LINK=$(curl https://nodejs.org/en/download/current/ | grep -m1 linux | cut -d\" -f4)
-curl -L "$LINK" | bsdtar xf - -C$DIR
-
-mv $DIR/node*/* $DIR
-strip $DIR/bin/node
-cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR
-sed -i 4s#/#/bin/# $DIR/AppRun
-
-appdwarf $DIR
-mv $DIR.sh node
-rm -rf $DIR
+curl -L "$LINK" | tar xJ -C"$DIR"
+mv "$DIR"/node*/* "$DIR"
+strip "$DIR"/bin/node
+appdwarf -b "$DIR"/AppRun
+appdwarf "$DIR"
+mv "$DIR".sh node
+rm -rf "$DIR"

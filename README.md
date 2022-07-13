@@ -45,3 +45,6 @@ created when ran since some programs care about that, such as an emulator only
 running games of an expected file extension.
 
 `zzexe` requires `zstd` for both creating and running files and `moreutils` for creating them.
+
+As of June 2022, `zzexe` has been integrated into the main `appdwarf` script. It can
+be run either with the `-z` flag or by renaming the `appdwarf` script to `zzexe`.

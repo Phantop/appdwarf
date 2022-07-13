@@ -1,12 +1,11 @@
 #!/bin/sh
-PATH="$(dirname "$(readlink -f "${0}")")/..":"$PATH"
-DIR=/tmp/appdwarf/tex
-mkdir -p $DIR
+APP=${0#./mk}
+DIR=/tmp/appdwarf/$APP
+mkdir -p "$DIR"
 LINK=https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
-curl -L $LINK | tar xz -C$DIR
-mv $DIR/install-tl-* $DIR/tl
-
-cat > $DIR/tl/prof << 'EOF'
+curl -L $LINK | tar xz -C"$DIR"
+mv "$DIR"/install-tl-* "$DIR"/tl
+cat > "$DIR"/tl/prof << 'EOF'
 selected_scheme scheme-custom
 TEXDIR /tmp/appdwarf/tex
 TEXMFCONFIG $TEXMFSYSCONFIG
@@ -39,15 +38,9 @@ tlpdbopt_sys_info /usr/local/share/info
 tlpdbopt_sys_man /usr/local/share/man
 tlpdbopt_w32_multi_user 1
 EOF
-
-$DIR/tl/install-tl -profile $DIR/tl/prof
-
-cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR
-sed -i 2s#/bin#/bin/x86_64-linux# $DIR/AppRun
-sed -i 4s#/#/bin/x86_64-linux# $DIR/AppRun
-
-chmod +x $DIR/AppRun
-
-appdwarf $DIR
-mv $DIR.sh tex
-rm -rf $DIR
+"$DIR"/tl/install-tl -profile "$DIR"/tl/prof
+appdwarf -b "$DIR"/AppRun
+sed -i s#/bin#/bin/x86_64-linux# "$DIR"/AppRun
+appdwarf "$DIR"
+mv "$DIR".sh "$APP"
+rm -rf "$DIR"

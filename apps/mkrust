@@ -1,17 +1,13 @@
 #!/bin/sh
-PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
-DIR=/tmp/appdwarf/rust
+APP=${0#./mk}
+DIR=/tmp/appdwarf/$APP
 ARCH=x86_64-unknown-linux-gnu
-mkdir -p $DIR
+mkdir -p "$DIR"
 LINK=https://static.rust-lang.org/dist/rust-beta-$ARCH.tar.gz
-curl -L $LINK | tar xz -C$DIR
-
-$DIR/rust-beta-$ARCH/install.sh --prefix=$DIR --components=cargo,rustc,rust-std-$ARCH
-rm -rf $DIR/rust-beta-$ARCH
-
-cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR
-sed -i 4s#/#/bin/# $DIR/AppRun
-
-appdwarf $DIR
-mv $DIR.sh cargo
-rm -rf $DIR
+curl -L $LINK | tar xz -C"$DIR"
+"$DIR"/rust-beta-$ARCH/install.sh --prefix="$DIR" --components=cargo,rustc,rust-std-$ARCH
+rm -rf "$DIR"/rust-beta-$ARCH
+appdwarf -b "$DIR"/AppRun
+appdwarf "$DIR"
+mv "$DIR".sh "$APP"
+rm -rf "$DIR"

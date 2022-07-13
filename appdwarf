@@ -1,8 +1,14 @@
 #!/bin/sh
-#shellcheck disable=SC2086,SC2155
 set -e # exit on failure
 IFS=$(printf '\n\t') # smarter ifs
 
+apprun() {
+    export PATH="$APPDIR"/bin:"$PATH"
+    export LD_LIBRARY_PATH="$APPDIR"/lib64:"$APPDIR"/lib:"$LD_LIBRARY_PATH"
+    exec "$APPDIR/$(basename "$ARGV0")" "$@"
+}
+
+# shellcheck disable=SC2086,SC2155
 header() {
     APPDIR="/tmp/dwarf_$(basename "$0")$(echo "$0"|md5sum|head -c5)"
     export APPDIR APPIMAGE="$(realpath "$0")" ARGV0="$0" OWD="$PWD"
@@ -15,18 +21,23 @@ header() {
     exit $res
 }
 
+printfunc() {
+    echo '#!/bin/sh'
+    type "$1" | sed 's/^ *//' | tail -n+4 | head -n-1
+}
+
 zzexe() {
     [ "$1" = "-d" ] && awk 'f;/^exit \$res$/{f=1}' "$2" | head -c-1 | zstd -cd | ifne sponge "$2" && exit
     [ "$1" = "-p" ] && p="$2" && shift 2 # save prefix if present
     zstdmt -cq19 "$@" | ifne sponge "$1"
-    type zzexe_header | sed 's/^ *//' | tail -n+4 | head -n-1 | cat - "$1" | ifne sponge "$1"
-    sed -i -e '1i #!/bin/sh' -e "1s/);$/${1##*[./]})/" -e "6s/^/$p /" "$1"
+    printfunc zzexe_header | cat - "$1" | ifne sponge "$1"
+    sed -i -e "1s/);$/${1##*[./]})/" -e "6s/^/$p /" "$1"
     exit
 }
 
 zzexe_header() {
     dir=$(dirname "$0") out=$(mktemp -t .zzXXXX.)
-    awk "f;/^exit \\$res$/{f=1}" "$0" | head -c-1 | zstd -cd > "$out"
+    awk 'f;/^exit \$res$/{f=1}' "$0" | head -c-1 | zstd -cd > "$out"
     chmod +x "$out"
     ln -s "$out" "$dir"
     trap : 0 1 2 3 6 14 15
@@ -37,16 +48,33 @@ zzexe_header() {
 }
 
 case "$1" in
+    -a )
+        printfunc apprun > "$2"
+        chmod +x "$2"
+        exit ;;
+    -b )
+        printfunc apprun | sed '4s#/#/bin/#' > "$2"
+        chmod +x "$2"
+        exit ;;
     -d | -p )
         zzexe "$@" ;;
+    -z)
+        shift
+        zzexe "$@" ;;
     --version | -v )
-        tput setaf 2; echo appdwarf 2022.06.25
+        tput setaf 2; echo appdwarf 2022.07.13
         tput setaf 6; echo Built by July 🏳️‍🌈; exit ;;
     -* | '' )
-        tput setaf 6
+        tput setaf 2
         echo "Usage: $(basename "$0") [APP/FILE/FOLDER/URL] [compression options]"
-        tput setaf 3
+        tput setaf 7
+        echo "  -a [file]       Write example AppRun to file and exit"
+        echo "  -b [file]       Write example AppRun with bin subdir to file and exit"
+        echo
         echo "  -d              Decompress a zzexe'd file"
+        echo "  -p              zzexe a file with prefix"
+        echo "  -z              zzexe a file"
+        echo
         echo "  -h, --help      Print this help text"
         echo "  -v, --version   Print the appdwarf version"; exit ;;
 esac
@@ -97,9 +125,8 @@ if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
 fi
 
 head="$(mktemp)"
-echo '#!/bin/sh' > $head
-type header | tail -n+4 | head -n-1 | sed 's/^ *//' >> $head
+printfunc header > "$head"
 
-mkdwarfs -o "$(realpath "$1").sh" -B5 --header $head -i "$@"
-rm $head
+mkdwarfs -o "$(realpath "$1").sh" -B5 --header "$head" -i "$@"
+rm "$head"
 chmod +x "$(realpath "$1").sh"

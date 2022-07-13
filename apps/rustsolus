@@ -1,16 +1,11 @@
 #!/bin/sh
-PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
-DIR=/tmp/appdwarf/rust
-mkdir -p $DIR
-
-eopkg fc -o $DIR cargo rust
-parallel "unzip -op {} install.tar.xz | tar xJf - -C$DIR" ::: $DIR/*.eopkg 
-rm $DIR/*.eopkg
-rm -r $DIR/usr/lib64/rustlib/i686-unknown-linux-gnu
-
-cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR/usr
-sed -i 4s#/#/bin/# $DIR/usr/AppRun
-
-appdwarf $DIR/usr
-mv $DIR/usr.sh cargo
-rm -rf $DIR
+APP=${0#./}
+DIR=/tmp/appdwarf/$APP
+mkdir -p "$DIR"
+eopkg fc -o "$DIR" cargo rust
+parallel "unzip -op {} install.tar.xz | tar xJf - -C"$DIR"" ::: "$DIR"/*.eopkg 
+rm -r "$DIR"/usr/lib64/rustlib/i686-unknown-linux-gnu "$DIR"/*.eopkg
+appdwarf -b "$DIR"/usr/AppRun
+appdwarf "$DIR"/usr
+mv "$DIR"/usr.sh cargo
+rm -rf "$DIR"

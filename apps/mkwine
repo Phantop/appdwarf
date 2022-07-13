@@ -1,19 +1,15 @@
 #!/bin/sh
-PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
-DIR=/tmp/appdwarf/wine
-mkdir -p $DIR
+APP=${0#./mk}
+DIR=/tmp/appdwarf/$APP
+mkdir -p "$DIR"
 VER=Kron4ek/Wine-Builds
 [ "$1" = "proton" ] && VER=GloriousEggroll/proton-ge-custom && shift
 LINK=$(curl -L api.github.com/repos/$VER/releases | jq .[0].assets[1] | grep -om1 g.\*tar..z)
-curl -L "$LINK" | bsdtar xf - -C$DIR
-
-mv $DIR/wine*/* $DIR/GE-Proton*/files/* $DIR
-cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR
-sed -i 4s#/#/bin/# $DIR/AppRun
-
-t=winetricks; wget -O$DIR/bin/$t github.com/$t/$t/raw/master/src/$t
-chmod +x $DIR/bin/$t
-
-appdwarf $DIR "$@"
-mv $DIR.sh wine
-rm -rf $DIR
+curl -L "$LINK" | bsdtar xf - -C"$DIR"
+mv "$DIR"/wine*/* "$DIR"/GE-Proton*/files/* "$DIR"
+t=winetricks; wget -O"$DIR"/bin/$t github.com/$t/$t/raw/master/src/$t
+chmod +x "$DIR"/bin/$t
+appdwarf -b "$DIR"/AppRun
+appdwarf "$DIR" "$@"
+mv "$DIR".sh wine
+rm -rf "$DIR"

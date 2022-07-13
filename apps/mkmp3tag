@@ -1,15 +1,13 @@
 #!/bin/sh
-PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
-DIR=/tmp/appdwarf/mp3tag
-mkdir -p $DIR
+APP=${0#./mk}
+DIR=/tmp/appdwarf/$APP
+mkdir -p "$DIR"
 LINK=$(curl -L mp3tag.de/dodownload64.html | awk -F'[="]' /URL/'{print $7}')
-aria2c "$LINK" -d $DIR -o mp3tag
-7z x -y -o$DIR $DIR/mp3tag
-
-mv $DIR/Mp3tag.exe $DIR/mp3tag
-cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR
-sed -i '4s/ / wine /' $DIR/AppRun
-
-appdwarf $DIR "$@"
-mv $DIR.sh mp3tag
-rm -rf $DIR
+aria2c "$LINK" -d "$DIR" -o mp3tag
+7z x -y -o"$DIR" "$DIR"/mp3tag
+mv "$DIR"/Mp3tag.exe "$DIR"/mp3tag
+appdwarf -a "$DIR"/AppRun
+sed -i '4s/ / wine /' "$DIR"/AppRun
+appdwarf "$DIR" "$@"
+mv "$DIR".sh "$APP"
+rm -rf "$DIR"

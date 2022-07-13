@@ -1,15 +1,12 @@
 #!/bin/sh
-PATH=$(dirname "$(readlink -f "${0}")")/..:$PATH
-DIR=/tmp/appdwarf/java
-mkdir $DIR
+APP=${0#./mk}
+DIR=/tmp/appdwarf/$APP
+mkdir -p "$DIR"
 LINK=https://api.adoptium.net/v3/binary/latest/$1/ga/linux/x64/jre/hotspot/normal/eclipse
-curl -L "$LINK" | tar xz -C$DIR
-
-mv $DIR/jdk*/* $DIR
-cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR
-sed -i 4s#/#/bin/# $DIR/AppRun
-
 shift
-appdwarf $DIR "$@"
-mv $DIR.sh java
-rm -rf $DIR
+curl -L "$LINK" | tar xz -C"$DIR"
+mv "$DIR"/jdk*/* "$DIR"
+appdwarf -b "$DIR"/AppRun
+appdwarf "$DIR" "$@"
+mv "$DIR".sh "$APP"
+rm -rf "$DIR"

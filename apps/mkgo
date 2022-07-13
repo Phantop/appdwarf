@@ -4,11 +4,8 @@ DIR=/tmp/appdwarf/go
 mkdir -p $DIR
 LINK=$(curl -sL https://go.dev/dl | grep -m1 linux | cut -d\" -f4)
 curl -L https://go.dev/"$LINK" | tar xz -C$DIR/..
-
-cp "$(dirname "$(readlink -f "${0}")")"/../AppRun $DIR
+appdwarf -b $DIR/AppRun
 sed -i '4i export GOPROXY=direct' $DIR/AppRun
-sed -i 5s#/#/bin/# $DIR/AppRun
-
 appdwarf $DIR "$@"
 mv $DIR.sh go
 rm -rf $DIR

@@ -62,7 +62,7 @@ case "$1" in
         shift
         zzexe "$@" ;;
     --version | -v )
-        tput setaf 2; echo appdwarf 2022.07.13
+        tput setaf 2; echo appdwarf 2022.07.18
         tput setaf 6; echo Built by July 🏳️‍🌈; exit ;;
     -* | '' )
         tput setaf 2
@@ -114,14 +114,19 @@ if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
     chmod +x "$1"
     rm -rf squashfs-root
 
-    if ! "$(realpath "$1")" --appimage-extract 2> /dev/null; then 
+    # this is a file, but it might be an existing dwarfs image
+    if dwarfsck -d0 -i"$1" 2> /dev/null; then
+        set -- "$@" --recompress=none
+    elif "$(realpath "$1")" --appimage-extract 2> /dev/null; then 
+        app="$(basename "$1" .AppImage)"
+        rm -rf "$1" "$app"
+        shift
+        set -- "$app" "$@"
+        mv squashfs-root "$1"
+    else
         tput setaf 4; echo "$1 is not an AppImage, it will be zzexe'd"
         zzexe "$@"
     fi
-
-    app="$(basename "$1" .AppImage)" shift
-    set -- "$app" "$@"
-    mv squashfs-root "$1"
 fi
 
 head="$(mktemp)"

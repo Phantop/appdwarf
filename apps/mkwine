@@ -4,7 +4,7 @@ DIR=/tmp/appdwarf/$APP
 mkdir -p "$DIR"
 VER=Kron4ek/Wine-Builds
 [ "$1" = "proton" ] && VER=GloriousEggroll/proton-ge-custom && shift
-LINK=$(curl -L api.github.com/repos/$VER/releases | jq .[0].assets[1] | grep -om1 g.\*tar..z)
+LINK=$(curl -L api.github.com/repos/$VER/releases | jq .[0].assets[1] | grep -om1 git.\*tar..z)
 curl -L "$LINK" | bsdtar xf - -C"$DIR"
 mv "$DIR"/wine*/* "$DIR"/GE-Proton*/files/* "$DIR"
 t=winetricks; wget -O"$DIR"/bin/$t github.com/$t/$t/raw/master/src/$t

@@ -26,8 +26,15 @@ printfunc() {
     type "$1" | sed 's/^ *//' | tail -n+4 | head -n-1
 }
 
+unappimage() {
+    a=$(readelf -h "$1" | sed '13!d;s/[^0-9]//g')
+    b=$(readelf -h "$1" | sed '18!d;s/[^0-9]//g')
+    c=$(readelf -h "$1" | sed '19!d;s/[^0-9]//g')
+    o=$(echo "$a" + "$b" \* "$c" | bc)
+    unsquashfs -o "$o" "$1"
+}
+
 zzexe() {
-    [ "$1" = "-d" ] && awk 'f;/^exit \$res$/{f=1}' "$2" | head -c-1 | zstd -cd | ifne sponge "$2" && exit
     [ "$1" = "-p" ] && p="$2" && shift 2 # save prefix if present
     zstdmt -cq19 "$@" | ifne sponge "$1"
     printfunc zzexe_header | cat - "$1" | ifne sponge "$1"
@@ -56,30 +63,30 @@ case "$1" in
         printfunc apprun | sed '4s#/#/bin/#' > "$2"
         chmod +x "$2"
         exit ;;
-    -d | -p )
+    -d )
+        awk 'f;/^exit \$res$/{f=1}' "$2" | head -c-1 | zstd -cd | ifne sponge "$2"
+        d=dwarfs-root; dwarfsck -d0 -i"$2" && mkdir $d && dwarfsextract -o $d -i "$2"
+        exit ;;
+    -p )
         zzexe "$@" ;;
     -z)
         shift
         zzexe "$@" ;;
     --version | -v )
-        tput setaf 2; echo appdwarf 2022.07.18
+        tput setaf 2; echo appdwarf 2022.07.19
         tput setaf 6; echo Built by July 🏳️‍🌈; exit ;;
     -* | '' )
-        tput setaf 2
-        echo "Usage: $(basename "$0") [APP/FILE/FOLDER/URL] [compression options]"
-        tput setaf 7
+        echo "Usage: appdwarf [option] [APP/FILE/FOLDER/URL] [compression options]"
         echo "  -a [file]       Write example AppRun to file and exit"
         echo "  -b [file]       Write example AppRun with bin subdir to file and exit"
+        echo "  -d [file]       Decompress an appdwarf image or zzexe'd file"
         echo
-        echo "  -d              Decompress a zzexe'd file"
-        echo "  -p              zzexe a file with prefix"
+        echo "  -p [prefix]     zzexe a file with prefix"
         echo "  -z              zzexe a file"
         echo
         echo "  -h, --help      Print this help text"
         echo "  -v, --version   Print the appdwarf version"; exit ;;
 esac
-
-[ "$(basename "$0")" = zzexe ] && zzexe "$@"
 
 if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
     if [ ! -f "$1" ]; then # file doesn't exist, see if this is a url
@@ -89,9 +96,9 @@ if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
             shift
             set -- "$(curl -L "$app" | grep -o https.\*releases | sed 's|/releases$||')" "$@"
         elif ! echo "$1" | grep https ; then # GitHub in Author/Repo format
-            echo "Assuming this is a GitHub repo..."
             app=$1
-            set -- "https://github.com/$1" "$@"
+            shift
+            set -- "https://github.com/$app" "$@"
         fi
 
         if echo "$1" | grep 'https://github.com/[^/]*/[^/]*/*$'; then # GitHub url
@@ -106,18 +113,18 @@ if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
             shift
             set -- "$app" "$@"
         else
-            tput setaf 1; echo "Unable to find valid AppImage or AppDir" >&2
-            rm "$app" 2> /dev/null; exit 1
+            tput setaf 1; echo "No valid remote or local input found. Exiting..." >&2
+            rm -f "$app"; exit 1
         fi
     fi
 
-    chmod +x "$1"
     rm -rf squashfs-root
-
     # this is a file, but it might be an existing dwarfs image
-    if dwarfsck -d0 -i"$1" 2> /dev/null; then
+    if dwarfsck -d0 -i"$1"; then
+        echo "Existing dwarfs image found. Adding header..."
         set -- "$@" --recompress=none
-    elif "$(realpath "$1")" --appimage-extract 2> /dev/null; then 
+    elif unappimage "$1"; then
+        echo "AppImage found. Converting..."
         app="$(basename "$1" .AppImage)"
         rm -rf "$1" "$app"
         shift

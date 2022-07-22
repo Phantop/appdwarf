@@ -4,11 +4,10 @@ DIR=/tmp/appdwarf/$APP
 mkdir -p "$DIR"
 LINK="https://buildbot.pypy.org/nightly/py3.9/pypy-c-jit-latest-linux64.tar.bz2"
 curl -L "$LINK" | tar xj -C"$DIR"
-ln -s bin/pypy "$DIR"/AppRun
 mv "$DIR"/pypy*/* "$DIR"
-rm "$DIR"/bin/*.debug
-"$DIR"/AppRun -m ensurepip
-"$DIR"/AppRun -m pip install pipx
+"$DIR"/bin/pypy -m ensurepip
+"$DIR"/bin/pypy -m pip install pipx
+appdwarf -b "$DIR"/AppRun
 appdwarf "$DIR"
 mv "$DIR".sh "$APP"
 rm -rf "$DIR"

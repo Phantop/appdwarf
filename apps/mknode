@@ -5,8 +5,7 @@ mkdir -p "$DIR"
 LINK=$(curl https://nodejs.org/en/download/current/ | grep -m1 linux | cut -d\" -f4)
 curl -L "$LINK" | tar xJ -C"$DIR"
 mv "$DIR"/node*/* "$DIR"
-strip "$DIR"/bin/node
 appdwarf -b "$DIR"/AppRun
 appdwarf "$DIR"
-mv "$DIR".sh node
+mv "$DIR".sh "$APP"
 rm -rf "$DIR"

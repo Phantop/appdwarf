@@ -10,7 +10,6 @@ These scripts are all targeted for using on x86_64 Linux systems with GLIBC.
 
 Script | Function | Source
 --- | --- | ---
-`mkchrome ` | Latest official Chromium build | <https://download-chromium.appspot.com>
 `mkgo     ` | Latest official Go release | <https://go.dev>
 `mkjava   ` | Accepts an argument for Java version and obtains that build from Adoptium | <https://adoptium.net>
 `mkmp3tag ` | Latest 64-bit Mp3tag release | <https://mp3tag.de/en>

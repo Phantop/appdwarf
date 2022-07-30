@@ -1,5 +1,5 @@
 #!/bin/sh
-APP=${0#./mk}
+APP=$(basename "$0" | sed 's/^mk//')
 DIR=/tmp/appdwarf/$APP
 ARCH=x86_64-unknown-linux-gnu
 mkdir -p "$DIR"

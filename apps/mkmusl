@@ -1,5 +1,5 @@
 #!/bin/sh
-APP=${0#./mk}
+APP=$(basename "$0" | sed 's/^mk//')
 DIR=/tmp/appdwarf/$APP
 mkdir "$DIR"
 curl http://musl.cc/x86_64-linux-musl-native.tgz | tar xz -C"$DIR"

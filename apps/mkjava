@@ -1,5 +1,5 @@
 #!/bin/sh
-APP=${0#./mk}
+APP=$(basename "$0" | sed 's/^mk//')
 DIR=/tmp/appdwarf/$APP
 mkdir -p "$DIR"
 LINK=https://api.adoptium.net/v3/binary/latest/$1/ga/linux/x64/jre/hotspot/normal/eclipse

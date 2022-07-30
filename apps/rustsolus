@@ -1,9 +1,9 @@
 #!/bin/sh
-APP=${0#./}
+APP=$(basename "$0")
 DIR=/tmp/appdwarf/$APP
 mkdir -p "$DIR"
 eopkg fc -o "$DIR" cargo rust
-parallel "unzip -op {} install.tar.xz | tar xJf - -C"$DIR"" ::: "$DIR"/*.eopkg 
+parallel "unzip -op {} install.tar.xz | tar xJf - -C$DIR" ::: "$DIR"/*.eopkg 
 rm -r "$DIR"/usr/lib64/rustlib/i686-unknown-linux-gnu "$DIR"/*.eopkg
 appdwarf -b "$DIR"/usr/AppRun
 appdwarf "$DIR"/usr

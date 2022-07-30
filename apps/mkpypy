@@ -1,5 +1,5 @@
 #!/bin/sh
-APP=${0#./mk}
+APP=$(basename "$0" | sed 's/^mk//')
 DIR=/tmp/appdwarf/$APP
 mkdir -p "$DIR"
 LINK="https://buildbot.pypy.org/nightly/py3.9/pypy-c-jit-latest-linux64.tar.bz2"

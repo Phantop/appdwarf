@@ -5,17 +5,21 @@ either as a local file or from a URL, into a highly compressed portable image us
 [dwarfs](https://github.com/mhx/dwarfs).
 
 This is a small script and the bulk of the work is in the original `dwarfs` project,
-so all credit deserves to go there. It has not been extensively tested so I cannot
-guarantee it will function without issue.
+so all credit deserves to go there. This script has not been extensively tested so I
+cannot guarantee it will function without issue.
 
 ## Requirements
 
 In order to create the images, you will need:
 
-- [dwarfs](https://github.com/mhx/dwarfs), specifically the `dwarfs` and `mkdwarfs` utilities.
+- Some coreutils implementation
+- [dwarfs](https://github.com/mhx/dwarfs), specifically `mkdwarfs`
     - This may in turn require further dependencies, and specifically relies on the presence of FUSE for mounting images.
+    - `dwarfsck` and `dwarfsextract` also allow for additional functionality
+- Squashfs-tools for AppImage functionality
+- `zstd` for creating or running `zzexe` files
 
-If you only wish to run an existing image, only `dwarfs` is needed in PATH.
+If you only wish to run an existing appdwarf, only `dwarfs` is needed in PATH.
 
 ## How to create an appdwarf
 
@@ -44,7 +48,6 @@ It also automatically appends the extension of the source file to the temporary 
 created when ran since some programs care about that, such as an emulator only
 running games of an expected file extension.
 
-`zzexe` requires `zstd` for both creating and running files and `moreutils` for creating them.
-
-As of June 2022, `zzexe` has been integrated into the main `appdwarf` script. It can
-be run either with the `-z` flag or by renaming the `appdwarf` script to `zzexe`.
+As of June 2022, `zzexe` has been integrated into the main `appdwarf` script. 
+I have implemented a heuristic that should automatically detect regular files and
+run `zzexe` on them, however you can directly invoke it with the `-z` option.

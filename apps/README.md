@@ -16,6 +16,7 @@ Script | Function | Source
 `mknode   ` | Latest official NodeJS release | <https://nodejs.org>
 `mkpypy   ` | Latest PyPy3 release | <https://www.pypy.org>
 `mkrust   ` | Latest Rust nightly | <https://rust-lang.org>
+`mksignal`  | Latest Signal stable from the Solus repos (requires `eopkg` and may not work on other distros) | <https://signal.org>
 `mktex    ` | Minimal/custom TeX Live image | <https://ctan.org>
 `mkwine   ` | Latest `wine-staging-tkg` release | <https://github.com/Kron4ek/Wine-Builds>
 `mkwine proton` | GloriousEggroll Proton Builds | <https://github.com/GloriousEggroll/proton-ge-custom>

@@ -23,15 +23,12 @@ header() {
 
 printfunc() {
     echo '#!/bin/sh'
-    type "$1" | sed 's/^ *//' | tail -n+4 | head -n-1
+    sed -n "s/^ *//;/^$1() {$/,/^}$/p" "$0" | tail -n+2 | head -n-1
 }
 
 unappimage() {
-    a=$(readelf -h "$1" | sed '13!d;s/[^0-9]//g')
-    b=$(readelf -h "$1" | sed '18!d;s/[^0-9]//g')
-    c=$(readelf -h "$1" | sed '19!d;s/[^0-9]//g')
-    o=$(echo "$a" + "$b" \* "$c" | bc) # calculate offset via ELF header
-    unsquashfs -o "$o" "$@"
+    o=$(($(readelf -h "$1" | sed -e 's/[^0-9]//g;13p;18,19p;d' | sed -e 1a+ -e 2a*)))
+    unsquashfs -o "$o" "$@" # calculate offset via ELF header
 }
 
 zzexe() {
@@ -79,7 +76,7 @@ case "$1" in
         shift
         zzexe "$@" ;;
     --version | -v )
-        tput setaf 2; echo appdwarf 2022.08.05
+        tput setaf 2; echo appdwarf 2022.09.09
         tput setaf 6; echo Built by July 🏳️‍🌈; exit ;;
     -* | '' )
         echo "Usage: appdwarf [option] [APP/FILE/FOLDER/URL] [compression options]"

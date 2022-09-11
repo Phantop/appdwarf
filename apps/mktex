@@ -39,8 +39,9 @@ tlpdbopt_sys_man /usr/local/share/man
 tlpdbopt_w32_multi_user 1
 EOF
 "$DIR"/tl/install-tl -profile "$DIR"/tl/prof
+rm -r "$DIR"/texmf-dist/scripts/tlcockpit
 appdwarf -b "$DIR"/AppRun
-sed -i s#/bin#/bin/x86_64-linux# "$DIR"/AppRun
+sed -i 2,4s#/bin#/bin/x86_64-linux# "$DIR"/AppRun
 appdwarf "$DIR"
 mv "$DIR".sh "$APP"
 rm -rf "$DIR"

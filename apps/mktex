@@ -40,6 +40,7 @@ tlpdbopt_w32_multi_user 1
 EOF
 "$DIR"/tl/install-tl -profile "$DIR"/tl/prof
 rm -r "$DIR"/texmf-dist/scripts/tlcockpit
+"$DIR"/bin/x86_64-linux/tlmgr install markdown paralist xstring
 appdwarf -b "$DIR"/AppRun
 sed -i 2,4s#/bin#/bin/x86_64-linux# "$DIR"/AppRun
 appdwarf "$DIR"

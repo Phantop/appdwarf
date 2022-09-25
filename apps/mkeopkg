@@ -8,5 +8,5 @@ rm "$DIR"/*.eopkg
 appdwarf -b "$DIR"/AppRun
 sed -i 2,4s#/bin#/usr/bin# "$DIR"/AppRun
 appdwarf "$DIR"
-mv "$DIR".sh "$APP"
+mv "$DIR".sh "$1"
 rm -rf "$DIR"

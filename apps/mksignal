@@ -1,11 +1,8 @@
 #!/bin/sh
-APP=$(basename "$0" | sed 's/^mk//')
-DIR=/tmp/appdwarf/$APP
-mkdir -p "$DIR"
+. "$(dirname "$0")"/appmk
+part0
 eopkg fc -o "$DIR" signal-desktop
 parallel "unzip -op {} install.tar.xz | tar xJf - -C$DIR" ::: "$DIR"/*.eopkg 
 ln -s usr/share/signal-desktop/signal-desktop "$DIR"/AppRun
 rm "$DIR"/*.eopkg
-appdwarf "$DIR"
-mv "$DIR".sh "$APP"
-rm -rf "$DIR"
+part9

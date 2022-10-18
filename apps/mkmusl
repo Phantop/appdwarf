@@ -1,12 +1,10 @@
 #!/bin/sh
-APP=$(basename "$0" | sed 's/^mk//')
-DIR=/tmp/appdwarf/$APP
-mkdir "$DIR"
-curl http://musl.cc/x86_64-linux-musl-native.tgz | tar xz -C"$DIR"
+. "$(dirname "$0")"/appmk
+part0
+LINK=http://musl.cc/x86_64-linux-musl-native.tgz
+ungz
 mv "$DIR"/x86_64-linux-musl-native/* "$DIR"
 ln -s gcc "$DIR"/bin/cc
-appdwarf -a "$DIR"/AppRun
+appa
 sed -i '4d;3a exec "$@"' "$DIR"/AppRun
-appdwarf "$DIR" "$@"
-mv "$DIR".sh "$APP"
-rm -rf "$DIR"
+part9

@@ -1,9 +1,8 @@
 #!/bin/sh
-APP=$(basename "$0" | sed 's/^mk//')
-DIR=/tmp/appdwarf/$APP
-mkdir -p "$DIR"
+. "$(dirname "$0")"/appmk
+part0
 LINK=https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
-curl -L $LINK | tar xz -C"$DIR"
+ungz
 mv "$DIR"/install-tl-* "$DIR"/tl
 cat > "$DIR"/tl/prof << 'EOF'
 selected_scheme scheme-custom
@@ -41,8 +40,6 @@ EOF
 "$DIR"/tl/install-tl -profile "$DIR"/tl/prof
 rm -r "$DIR"/texmf-dist/scripts/tlcockpit
 "$DIR"/bin/x86_64-linux/tlmgr install markdown paralist xstring
-appdwarf -b "$DIR"/AppRun
+appb
 sed -i 2,4s#/bin#/bin/x86_64-linux# "$DIR"/AppRun
-appdwarf "$DIR"
-mv "$DIR".sh "$APP"
-rm -rf "$DIR"
+part9

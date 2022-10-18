@@ -1,13 +1,10 @@
 #!/bin/sh
-APP=$(basename "$0" | sed 's/^mk//')
-DIR=/tmp/appdwarf/$APP
-mkdir -p "$DIR"
+. "$(dirname "$0")"/appmk
+part0
 LINK=$(curl -L mp3tag.de/dodownload64.html | awk -F'[="]' /URL/'{print $7}')
 aria2c "$LINK" -d "$DIR" -o mp3tag
 7z x -y -o"$DIR" "$DIR"/mp3tag
 mv "$DIR"/Mp3tag.exe "$DIR"/mp3tag
-appdwarf -a "$DIR"/AppRun
+appa
 sed -i '4s/ / wine /' "$DIR"/AppRun
-appdwarf "$DIR" "$@"
-mv "$DIR".sh "$APP"
-rm -rf "$DIR"
+part9

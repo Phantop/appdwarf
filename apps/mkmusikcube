@@ -1,11 +1,8 @@
 #!/bin/sh
-APP=$(basename "$0" | sed 's/^mk//')
-DIR=/tmp/appdwarf/$APP
-mkdir -p "$DIR"
+. "$(dirname "$0")"/appmk
+part0
 LINK=$(curl https://api.github.com/repos/clangen/musikcube/releases | grep -om2 http.\*bz2 | tail -n1)
-curl -L "$LINK" | tar xj -C"$DIR"
+unbz
 mv "$DIR"/musikcube*/* "$DIR"
-appdwarf -a "$DIR"/AppRun
-appdwarf "$DIR" "$@"
-mv "$DIR".sh "$APP"
-rm -rf "$DIR"
+appa
+part9

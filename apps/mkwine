@@ -1,15 +1,12 @@
 #!/bin/sh
-APP=$(basename "$0" | sed 's/^mk//')
-DIR=/tmp/appdwarf/$APP
-mkdir -p "$DIR"
+. "$(dirname "$0")"/appmk
+part0
 VER=Kron4ek/Wine-Builds
 [ "$1" = "proton" ] && VER=GloriousEggroll/proton-ge-custom && shift
 LINK=$(curl -L api.github.com/repos/$VER/releases | jq .[0].assets[1] | grep -om1 git.\*tar..z)
-curl -L "$LINK" | bsdtar xf - -C"$DIR"
-mv "$DIR"/wine*/* "$DIR"/GE-Proton*/files/* "$DIR"
+unarc
+mv "$DIR"/wine*/* "$DIR"/GE-Proton*/files/* "$DIR" || true
 t=winetricks; wget -O"$DIR"/bin/$t github.com/$t/$t/raw/master/src/$t
 chmod +x "$DIR"/bin/$t
-appdwarf -b "$DIR"/AppRun
-appdwarf "$DIR" "$@"
-mv "$DIR".sh wine
-rm -rf "$DIR"
+appb
+part9

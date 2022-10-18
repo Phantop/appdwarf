@@ -1,13 +1,9 @@
 #!/bin/sh
-APP=$(basename "$0" | sed 's/^mk//')
-DIR=/tmp/appdwarf/$APP
-mkdir -p "$DIR"
+part0
 LINK="https://buildbot.pypy.org/nightly/py3.9/pypy-c-jit-latest-linux64.tar.bz2"
-curl -L "$LINK" | tar xj -C"$DIR"
+unbz
 mv "$DIR"/pypy*/* "$DIR"
 "$DIR"/bin/pypy -m ensurepip
 "$DIR"/bin/pypy -m pip install pipx
-appdwarf -b "$DIR"/AppRun
-appdwarf "$DIR"
-mv "$DIR".sh "$APP"
-rm -rf "$DIR"
+appb
+part9

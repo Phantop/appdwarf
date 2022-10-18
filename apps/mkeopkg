@@ -1,11 +1,10 @@
 #!/bin/sh
-APP=$(basename "$0" | sed 's/^mk//')
-DIR=/tmp/appdwarf/$APP
-mkdir -p "$DIR"
+. "$(dirname "$0")"/appmk
+part0
 eopkg fc -o "$DIR" "$@"
 parallel "unzip -op {} install.tar.xz | tar xJf - -C$DIR" ::: "$DIR"/*.eopkg 
 rm "$DIR"/*.eopkg
-appdwarf -b "$DIR"/AppRun
+appb
 sed -i 2,4s#/bin#/usr/bin# "$DIR"/AppRun
 appdwarf "$DIR"
 mv "$DIR".sh "$1"

@@ -1,12 +1,9 @@
 #!/bin/sh
-APP=$(basename "$0" | sed 's/^mk//')
-DIR=/tmp/appdwarf/$APP
-mkdir -p "$DIR"
+. "$(dirname "$0")"/appmk
+part0
 LINK=https://api.adoptium.net/v3/binary/latest/$1/ga/linux/x64/jre/hotspot/normal/eclipse
 shift
-curl -L "$LINK" | tar xz -C"$DIR"
+ungz
 mv "$DIR"/jdk*/* "$DIR"
-appdwarf -b "$DIR"/AppRun
-appdwarf "$DIR" "$@"
-mv "$DIR".sh "$APP"
-rm -rf "$DIR"
+appb
+part9

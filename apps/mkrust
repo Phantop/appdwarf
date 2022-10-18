@@ -1,13 +1,10 @@
 #!/bin/sh
-APP=$(basename "$0" | sed 's/^mk//')
-DIR=/tmp/appdwarf/$APP
+. "$(dirname "$0")"/appmk
+part0
 ARCH=x86_64-unknown-linux-gnu
-mkdir -p "$DIR"
 LINK=https://static.rust-lang.org/dist/rust-beta-$ARCH.tar.gz
-curl -L $LINK | tar xz -C"$DIR"
+ungz
 "$DIR"/rust-beta-$ARCH/install.sh --prefix="$DIR" --components=cargo,rustc,rust-std-$ARCH
 rm -rf "$DIR"/rust-beta-$ARCH
-appdwarf -b "$DIR"/AppRun
-appdwarf "$DIR"
-mv "$DIR".sh "$APP"
-rm -rf "$DIR"
+appb
+part9

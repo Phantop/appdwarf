@@ -12,11 +12,10 @@ cannot guarantee it will function without issue.
 
 In order to create the images, you will need:
 
-- Some coreutils implementation
 - [dwarfs](https://github.com/mhx/dwarfs), specifically `mkdwarfs`
     - This may in turn require further dependencies, and specifically relies on the presence of FUSE for mounting images.
-    - `dwarfsck` and `dwarfsextract` also allow for additional functionality
-- Squashfs-tools for AppImage functionality
+    - `dwarfsck` and `dwarfsextract` also allow for converting existing dwarfs images and updating the header of existing appdwarfs
+- squashfs-tools for AppImage conversion
 - `zstd` for creating or running `zzexe` files
 
 If you only wish to run an existing appdwarf, only `dwarfs` is needed in PATH.
@@ -30,24 +29,23 @@ that meet the GitHub criteria on AppImageHub. Any files that are found but are n
 AppImages will be compressed using `zzexe`.
 
 The apps folder contains other scripts for specific programs that will download all
-necessary files and create a resulting appdwarf in the same folder.
+necessary files and create a resulting appdwarf in the `bin` subfolder.
 
 ## `zzexe`
 
 `zzexe` is a small tool similar to `gzexe` that instead uses zstd to compress single applications.
 I've included it because it has a similar goal to `appdwarf` on the whole, just on a smaller scale.
 
-I wrote it in part because I felt that `gzexe` was overly complicated, as I used to 
-just use a lightly modified version of it that replaces `gzip` with `zstd`,
-and to add a couple additional features. 
+I wrote it in part because I felt that `gzexe` was overly complicated, as I had been 
+using lightly modified version of it that replaces `gzip` with `zstd`, and to add a
+couple additional features:
 
-It supports adding in a prefix command to the file using the `-p` options e.g.
-`zzexe -p wine some.exe` will generate a compressed file that will then run the exe.
-
-It also automatically appends the extension of the source file to the temporary file
+- supports adding in a prefix command to the file using the `-p` option
+    - e.g. `zzexe -p wine some.exe` will generate a compressed file that will then run the exe with wine
+- automatically appends the extension of the source file to the temporary file
 created when ran since some programs care about that, such as an emulator only
 running games of an expected file extension.
 
-As of June 2022, `zzexe` has been integrated into the main `appdwarf` script. 
+*As of June 2022, `zzexe` has been integrated into the main `appdwarf` script. 
 I have implemented a heuristic that should automatically detect regular files and
-run `zzexe` on them, however you can directly invoke it with the `-z` option.
+run `zzexe` on them, however you can directly invoke it with the `-z` option.*

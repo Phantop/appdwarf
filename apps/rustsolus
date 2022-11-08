@@ -4,5 +4,6 @@ part0
 eopkg fc -o "$DIR" cargo rust
 parallel "unzip -op {} install.tar.xz | tar xJf - -C$DIR" ::: "$DIR"/*.eopkg 
 rm -r "$DIR"/usr/lib64/rustlib/i686-unknown-linux-gnu "$DIR"/*.eopkg
+mv "$DIR"/usr/* "$DIR"
 appb
 part9

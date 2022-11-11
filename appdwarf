@@ -10,7 +10,7 @@ apprun() {
 
 # shellcheck disable=SC2086,SC2155
 header() {
-    APPDIR="/tmp/dwarf_$(basename "$0")$(echo "$0"|md5sum|head -c5)"
+    APPDIR="/tmp/dwarf_$(realpath "$0" | sed 's#/#_#g')"
     export APPDIR APPIMAGE="$(realpath "$0")" ARGV0="$0" OWD="$PWD"
     args="-o offset=auto -o tidy_strategy=swap -o workers=4"
     [ ! -d "$APPDIR" ] && mkdir "$APPDIR" && dwarfs $args "$0" "$APPDIR" 2>/dev/null

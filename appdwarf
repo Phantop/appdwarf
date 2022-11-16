@@ -10,10 +10,9 @@ apprun() {
 
 header() {
     set -e
-    APPDIR=$(mktemp -d)
-    APPIMAGE="$(realpath "$0")"
+    APPDIR=$(mktemp -d) APPIMAGE="$(realpath "$0")"
     export APPDIR APPIMAGE ARGV0="$0" OWD="$PWD"
-    dwarfs -o offset=auto -o tidy_strategy=swap -o workers="$(nproc)" -o debuglevel=warn "$0" "$APPDIR"
+    dwarfs -o offset=auto -o tidy_strategy=swap -o workers="$(nproc)" "$0" "$APPDIR"
     trap 'fusermount -quz $APPDIR; rmdir $APPDIR' 0 1 2 3 6 14 15 EXIT
     "$APPDIR/AppRun" "$@"
     exit $?
@@ -46,9 +45,7 @@ zzexe_header() {
     ln -s "$out" "$dir"
     trap 'rm "$out" "$dir/$(basename "$out")"'  0 1 2 3 6 14 15 EXIT
     "$dir/$(basename "$out")" "$@"
-    res=$?
-    rm "$out" "$dir/$(basename "$out")"
-    exit $res
+    exit $?
 }
 
 case "$1" in
@@ -74,7 +71,7 @@ case "$1" in
         shift
         zzexe "$@" ;;
     --version | -v )
-        tput setaf 2; echo appdwarf 2022.11.14
+        tput setaf 2; echo appdwarf 2022.11.15
         tput setaf 6; echo Built by July 🏳️‍🌈; exit ;;
     -* | '' )
         echo "Usage: appdwarf [option] [APP/FILE/FOLDER/URL] [compression options]"

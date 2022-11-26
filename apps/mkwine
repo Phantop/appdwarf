@@ -4,14 +4,15 @@ part0
 VER=Kron4ek/Wine-Builds
 [ "$1" = "-p" ] && PREFIX=1 && shift
 [ "$1" = "proton" ] && VER=GloriousEggroll/proton-ge-custom && shift
+[ "$1" = "lutris" ] && VER=lutris/wine && shift
 LINK=$(curl -L api.github.com/repos/$VER/releases | jq .[0].assets[1] | grep -om1 git.\*tar..z)
 unarc
-mv "$DIR"/wine*/* "$DIR"/GE-Proton*/files/* "$DIR" || true
+mv "$DIR"/wine*/* "$DIR"/GE-Proton*/files/* "$DIR"/lutris*/* "$DIR" || true
 t=winetricks; wget -O"$DIR"/bin/$t github.com/$t/$t/raw/master/src/$t
 chmod +x "$DIR"/bin/$t
 
 if [ $PREFIX ]; then
-    WINEPREFIX="$DIR/prefix" "$DIR/bin/wineboot"
+    WINEPREFIX="$DIR/prefix" "$DIR/bin/wine" cmd /c exit
     cat > "$DIR/AppRun" << 'EOF'
 #!/bin/sh
 export PATH="$APPDIR"/bin:"$PATH"

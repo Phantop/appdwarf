@@ -18,9 +18,11 @@ if [ $PREFIX ]; then
 export PATH="$APPDIR"/bin:"$PATH"
 export LD_LIBRARY_PATH="$APPDIR"/lib64:"$APPDIR"/lib:"$LD_LIBRARY_PATH"
 
-mkdir -p "$APPDIR.prefix" ~/.wine/work
-fuse-overlayfs -o "lowerdir=$APPDIR/prefix,upperdir=$HOME/.wine,workdir=$HOME/.wine/work" "$APPDIR.prefix"
-export WINEPREFIX="$APPDIR.prefix"
+if [ ! $WINEPREFIX ]; then
+    mkdir -p "$APPDIR.prefix" ~/.wine/work
+    fuse-overlayfs -o "lowerdir=$APPDIR/prefix,upperdir=$HOME/.wine,workdir=$HOME/.wine/work" "$APPDIR.prefix"
+    export WINEPREFIX="$APPDIR.prefix"
+fi
 
 "$APPDIR/bin/$(basename "$ARGV0")" "$@"
 

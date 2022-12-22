@@ -40,7 +40,7 @@ zzexe() {
 
 zzexe_header() {
     dir=$(dirname "$0") out=$(mktemp -t .zzXXXX.)
-    awk 'f;/^exit \$res$/{f=1}' "$0" | head -c-1 | zstd -cd > "$out"
+    awk 'f;/^exit \$\?$/{f=1}' "$0" | head -c-1 | zstd -cd > "$out"
     chmod +x "$out"
     ln -s "$out" "$dir"
     trap 'rm "$out" "$dir/$(basename "$out")"'  0 1 2 3 6 14 15 EXIT
@@ -61,7 +61,7 @@ case "$1" in
         d=dwarfs-root # just to keep line shorter, extract if file is dwarfs
         dwarfsck -d0 -i"$2" && mkdir $d && dwarfsextract -o $d -i "$2" && exit
         tmp=$(mktemp) # make tmp file to avoid io operations
-        awk 'f;/^exit \$res$/{f=1}' "$2" | head -c-1 | zstd -cd > "$tmp"
+        awk 'f;/^exit \$\?$/{f=1}' "$2" | head -c-1 | zstd -cd > "$tmp"
         mv "$tmp" "$2"
         chmod +x "$2"
         exit ;;

@@ -71,7 +71,7 @@ case "$1" in
         shift
         zzexe "$@" ;;
     --version | -v )
-        tput setaf 2; echo appdwarf 2022.12.13
+        tput setaf 2; echo appdwarf 2023.01.09
         tput setaf 6; echo Built by July 🏳️‍🌈; exit ;;
     -* | '' )
         echo "Usage: appdwarf [option] [APP/FILE/FOLDER/URL] [compression options]"
@@ -103,7 +103,7 @@ if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
             echo "Assuming this is a GitHub repo..."
             app="$(echo "${1%/}"/releases | sed 's|github.com|api.github.com/repos|')"
             shift
-            set -- "$(curl "$app" | grep -om1 https.\*"$(uname -m)".AppImage)" "$@"
+            set -- "$(curl "$app" | grep -om1 "https.*$(uname -m)\.AppImage\|https.*[^-arm64]\.AppImage")" "$@"
         fi
 
         app=$(basename "$1") # actually try to get the appimage

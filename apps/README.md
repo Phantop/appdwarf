@@ -19,6 +19,7 @@ Script | Function | Source
 `mkmusl` | Latest musl.cc toolchain | <https://musl.cc>
 `mknode` | Latest official NodeJS release | <https://nodejs.org>
 `mkpypy` | Latest PyPy3 release | <https://www.pypy.org>
+`mkrenpy` | Latest Ren'Py release | <https://www.renpy.org>
 `mkrust` | Latest Rust nightly | <https://rust-lang.org>
 `mksignal`  | Latest Signal stable from the Solus repos (requires `eopkg` and may not work on other distros) | <https://signal.org>
 `mktex` | Minimal/custom TeX Live image | <https://ctan.org>

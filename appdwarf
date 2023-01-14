@@ -71,7 +71,7 @@ case "$1" in
         shift
         zzexe "$@" ;;
     --version | -v )
-        tput setaf 2; echo appdwarf 2023.01.09
+        tput setaf 2; echo appdwarf 2023.01.14
         tput setaf 6; echo Built by July 🏳️‍🌈; exit ;;
     -* | '' )
         echo "Usage: appdwarf [option] [APP/FILE/FOLDER/URL] [compression options]"
@@ -102,8 +102,10 @@ if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
         if echo "$1" | grep -q 'https://github.com/[^/]*/[^/]*/*$'; then # GitHub url
             echo "Assuming this is a GitHub repo..."
             app="$(echo "${1%/}"/releases | sed 's|github.com|api.github.com/repos|')"
+            api="$(curl "$app" | jq -r .[].assets[].browser_download_url | grep 'AppImage$')"
+            link="$(echo "$api" | grep "$(uname -m)" || echo "$api" | grep -vEe '-(aarch|arm)(64|hf)\.AppImage')"
             shift
-            set -- "$(curl "$app" | grep -om1 "https.*$(uname -m)\.AppImage\|https.*[^-arm64]\.AppImage")" "$@"
+            set -- "$(echo "$link" | head -n1)" "$@"
         fi
 
         app=$(basename "$1") # actually try to get the appimage

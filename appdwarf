@@ -29,8 +29,8 @@ unappimage() {
 }
 
 zzexe() {
-    [ "$1" = "-p" ] && p="$2" && shift 2 # save prefix if present
-    tmp=$(mktemp) # make tmp file to avoid io operations
+    [ "$1" = "-p" ] && p="$2" && shift # save prefix if present
+    shift; tmp=$(mktemp) # make tmp file to avoid io operations
     printfunc zzexe_header | sed -e "2s/);$/${1##*[./]})/" -e "7s/^/$p /" > "$tmp"
     zstdmt -cq19 "$@" >> "$tmp"
     mv "$tmp" "$1"
@@ -65,19 +65,20 @@ case "$1" in
         mv "$tmp" "$2"
         chmod +x "$2"
         exit ;;
-    -p )
-        zzexe "$@" ;;
-    -z)
-        shift
+    --fetch )
+        FETCH=1
+        shift ;;
+    -p | -z)
         zzexe "$@" ;;
     --version | -v )
-        tput setaf 2; echo appdwarf 2023.01.14
+        tput setaf 2; echo appdwarf 2023.01.23
         tput setaf 6; echo Built by July 🏳️‍🌈; exit ;;
     -* | '' )
         echo "Usage: appdwarf [option] [APP/FILE/FOLDER/URL] [compression options]"
         echo "  -a [file]       Write example AppRun to file and exit"
         echo "  -b [file]       Write example AppRun with bin subdir to file and exit"
         echo "  -d [file]       Decompress an appdwarf image or zzexe'd file"
+        echo "  --fetch         Exit after fetching a remote AppImage, if applicable"
         echo
         echo "  -p [prefix]     zzexe a file with prefix"
         echo "  -z              zzexe a file"
@@ -112,6 +113,7 @@ if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
         if aria2c -x16 -s16 "$1" -o "$app" || wget "$1" -O "$app"; then
             shift
             set -- "$app" "$@"
+            test $FETCH && chmod +x "$1" && exit
         else
             tput setaf 1; echo "No valid remote or local input found. Exiting..." >&2
             rm -f "$app"; exit 1

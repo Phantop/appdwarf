@@ -1,4 +1,5 @@
 #!/bin/sh
+. "$(dirname "$0")"/appmk
 part0
 LINK="https://buildbot.pypy.org/nightly/py3.9/pypy-c-jit-latest-linux64.tar.bz2"
 unbz

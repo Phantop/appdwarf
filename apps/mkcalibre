@@ -1,0 +1,10 @@
+#!/bin/sh
+. "$(dirname "$0")"/appmk
+part0
+base=https://download.calibre-ebook.com
+LINK="$(curl "$base" | tail -n 1 | cut -d\" -f2)"
+LINK="$(curl "$base/$LINK" | tail -n 1 | cut -d\" -f4)"
+LINK="$base/$LINK$(curl "$base/$LINK" | tail -n 1 | cut -d\" -f18)"
+unxz
+appa
+part9

@@ -8,19 +8,26 @@ apprun() {
     exec "$APPDIR/$(basename "$ARGV0")" "$@"
 }
 
+bundlehead() { #use script end and dwarfs header to find location of dwarfs binary
+    MOUNTBIN=$(mktemp); START=$(sed -n '/^exit \$? #ade$/{N;=}' "$0")
+    END=$(sed -n '0,/^DWARFS/=' "$0" | tail -n2 | head -n1)
+    head -n"$END" "$0" | tail -n+"$START" | head -c-1 | zstd -cqd > "$MOUNTBIN"
+    dwarfs() { chmod +x "$MOUNTBIN"; "$MOUNTBIN" "$@"; rm "$MOUNTBIN"; }
+}
+
 header() {
-    set -e
     APPDIR=$(mktemp -d) APPIMAGE="$(realpath "$0")"
     export APPDIR APPIMAGE ARGV0="$0" OWD="$PWD"
     dwarfs -o offset=auto -o tidy_strategy=swap -o workers="$(nproc)" "$0" "$APPDIR"
     trap 'fusermount -quz $APPDIR; rmdir $APPDIR' 0 1 2 3 6 14 15 EXIT
     "$APPDIR/AppRun" "$@"
-    exit $?
+    exit $? #ade
 }
 
 printfunc() {
     echo '#!/bin/sh'
-    sed -n "s/^ *//;/^$1() {$/,/^}$/p" "$0" | tail -n+2 | head -n-1
+    echo 'set -e'
+    sed -n "/^$1() {$/,/^}$/s/^ *//p" "$0" | tail -n+2 | head -n-1
 }
 
 unappimage() {
@@ -39,13 +46,13 @@ zzexe() {
 }
 
 zzexe_header() {
-    dir=$(dirname "$0") out=$(mktemp -t .zzXXXX.)
-    awk 'f;/^exit \$\?$/{f=1}' "$0" | head -c-1 | zstd -cd > "$out"
+    dir="$(dirname "$0")" out=$(mktemp -t .zzXXXX.)
+    tail -n+"$(sed -n '/^exit \$? #zst$/{N;=}' "$0")" "$0" | zstd -cd > "$out"
     chmod +x "$out"
-    ln -s "$out" "$dir"
+    [ ! -f "$dir/$(basename "$out")" ] && ln -s "$out" "$dir"
     trap 'rm "$out" "$dir/$(basename "$out")"'  0 1 2 3 6 14 15 EXIT
     "$dir/$(basename "$out")" "$@"
-    exit $?
+    exit $? #zst
 }
 
 case "$1" in
@@ -57,11 +64,14 @@ case "$1" in
         printfunc apprun | sed '4s#/#/bin/#' > "$2"
         chmod +x "$2"
         exit ;;
+    --bundle )
+        BUNDLE=$(realpath "$2")
+        shift 2;;
     -d )
         d=dwarfs-root # just to keep line shorter, extract if file is dwarfs
         dwarfsck -d0 -i"$2" && mkdir $d && dwarfsextract -o $d -i "$2" && exit
         tmp=$(mktemp) # make tmp file to avoid io operations
-        awk 'f;/^exit \$\?$/{f=1}' "$2" | head -c-1 | zstd -cd > "$tmp"
+        tail -n+"$(sed -n '/^exit \$? #zst$/{N;=}' "$2")" "$2" | zstd -cd > "$tmp"
         mv "$tmp" "$2"
         chmod +x "$2"
         exit ;;
@@ -71,20 +81,22 @@ case "$1" in
     -p | -z)
         zzexe "$@" ;;
     --version | -v )
-        tput setaf 2; echo appdwarf 2023.01.23
+        tput setaf 2; echo appdwarf 2023.02.04
         tput setaf 6; echo Built by July 🏳️‍🌈; exit ;;
     -* | '' )
         echo "Usage: appdwarf [option] [APP/FILE/FOLDER/URL] [compression options]"
-        echo "  -a [file]       Write example AppRun to file and exit"
-        echo "  -b [file]       Write example AppRun with bin subdir to file and exit"
-        echo "  -d [file]       Decompress an appdwarf image or zzexe'd file"
-        echo "  --fetch         Exit after fetching a remote AppImage, if applicable"
+        echo "  -a [file]        Write example AppRun to file and exit"
+        echo "  -b [file]        Write example AppRun with bin subdir to file and exit"
+        echo "  -d [file]        Decompress an appdwarf image or zzexe'd file"
         echo
-        echo "  -p [prefix]     zzexe a file with prefix"
-        echo "  -z              zzexe a file"
+        echo "  --bundle [file]  Bundle a dwarfs executable with the appdwarf image"
+        echo "  --fetch          Exit after fetching a remote AppImage, if applicable"
         echo
-        echo "  -h, --help      Print this help text"
-        echo "  -v, --version   Print the appdwarf version"; exit ;;
+        echo "  -p [prefix]      zzexe a file with prefix"
+        echo "  -z               zzexe a file"
+        echo
+        echo "  -h, --help       Print this help text"
+        echo "  -v, --version    Print the appdwarf version"; exit ;;
 esac
 
 if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
@@ -133,12 +145,15 @@ if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
         mv squashfs-root "$1"
     else
         tput setaf 4; echo "$1 is not an AppImage, it will be zzexe'd"
-        zzexe "$@"
+        zzexe -z "$@"
     fi
 fi
 
 head="$(mktemp)"
-printfunc header > "$head"
+test "$BUNDLE" && printfunc bundlehead >> "$head"
+printfunc header >> "$head"
+test "$BUNDLE" && zstd -cq "$BUNDLE" >> "$head"
+echo >> "$head"
 
 mkdwarfs -o "$(realpath "$1").sh" -B5 --header "$head" -i "$@"
 rm -rf "$head" "$1"

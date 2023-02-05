@@ -4,5 +4,5 @@ part0
 LINK=$(curl https://go.dev/dl/ | grep -m1 linux | cut -d\" -f4)
 curl -L https://go.dev/"$LINK" | tar xz -C"$DIR"/..
 appb
-sed -i '4i export GOPROXY=direct' "$DIR"/AppRun
+sed -i '5i export GOPROXY=direct' "$DIR"/AppRun
 part9

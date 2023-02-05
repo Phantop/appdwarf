@@ -6,5 +6,5 @@ ungz
 mv "$DIR"/x86_64-linux-musl-native/* "$DIR"
 ln -s gcc "$DIR"/bin/cc
 appa
-sed -i '4d;3a exec "$@"' "$DIR"/AppRun
+sed -i '5d;4a exec "$@"' "$DIR"/AppRun
 part9

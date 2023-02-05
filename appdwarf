@@ -8,10 +8,9 @@ apprun() {
     exec "$APPDIR/$(basename "$ARGV0")" "$@"
 }
 
-bundlehead() { #use script end and dwarfs header to find location of dwarfs binary
-    MOUNTBIN=$(mktemp); START=$(sed -n '/^exit \$? #ade$/{N;=}' "$0")
-    END=$(sed -n '0,/^DWARFS/=' "$0" | tail -n2 | head -n1)
-    head -n"$END" "$0" | tail -n+"$START" | head -c-1 | zstd -cqd > "$MOUNTBIN"
+bundlehead() {
+    MOUNTBIN=$(mktemp) # use provided offsets to supply dwarfs binary
+    tail -n+"$OFF" "$0" | head -n"$LEN" | head -c-1 | zstd -cqd > "$MOUNTBIN"
     dwarfs() { chmod +x "$MOUNTBIN"; "$MOUNTBIN" "$@"; rm "$MOUNTBIN"; }
 }
 
@@ -21,82 +20,88 @@ header() {
     dwarfs -o offset=auto -o tidy_strategy=swap -o workers="$(nproc)" "$0" "$APPDIR"
     trap 'fusermount -quz $APPDIR; rmdir $APPDIR' 0 1 2 3 6 14 15 EXIT
     "$APPDIR/AppRun" "$@"
-    exit $? #ade
+    exit $?
 }
 
-printfunc() {
+outfunc() {
     echo '#!/bin/sh'
-    echo 'set -e'
+    echo 'set -e' # running outfunc with no input just prints these two lines
     sed -n "/^$1() {$/,/^}$/s/^ *//p" "$0" | tail -n+2 | head -n-1
 }
 
 unappimage() {
+    test "$(hexdump -n11 -e'"%x"' "$1")" = 464c457f1010224941 || return 1
+    echo "AppImage found. Extracting..." # appimage magic matched
     o=$(($(readelf -h "$1" | sed -e 's/[^0-9]//g;13p;18,19p;d' | sed -e 1a+ -e 2a*)))
     unsquashfs -o "$o" "$@" # calculate offset via ELF header
 }
 
 zzexe() {
     [ "$1" = "-p" ] && p="$2" && shift # save prefix if present
-    shift; tmp=$(mktemp) # make tmp file to avoid io operations
-    printfunc zzexe_header | sed -e "2s/);$/${1##*[./]})/" -e "7s/^/$p /" > "$tmp"
-    zstdmt -cq19 "$@" >> "$tmp"
-    mv "$tmp" "$1"
+    shift; out=$(mktemp) # make tmp file to avoid io operations
+    { outfunc
+        echo "OFF=$(($( (outfunc; outfunc zzexe_header) | wc -l)+2))"
+        outfunc zzexe_header | sed -e "3s/)$/${1##*[./]})/" -e "8s/^/$p /"
+        zstdmt -cq19 "$@"
+    } > "$out"
+    mv "$out" "$1"
     chmod +x "$1"
     exit
 }
 
 zzexe_header() {
     dir="$(dirname "$0")" out=$(mktemp -t .zzXXXX.)
-    tail -n+"$(sed -n '/^exit \$? #zst$/{N;=}' "$0")" "$0" | zstd -cd > "$out"
+    tail -n+"$OFF" "$0" | zstd -cd > "$out"
     chmod +x "$out"
     [ ! -f "$dir/$(basename "$out")" ] && ln -s "$out" "$dir"
-    trap 'rm "$out" "$dir/$(basename "$out")"'  0 1 2 3 6 14 15 EXIT
+    trap 'rm -f "$out" "$dir/$(basename "$out")"'  0 1 2 3 6 14 15 EXIT
     "$dir/$(basename "$out")" "$@"
-    exit $? #zst
+    exit $?
 }
 
 case "$1" in
     -a )
-        printfunc apprun > "$2"
+        outfunc apprun > "$2"
         chmod +x "$2"
         exit ;;
     -b )
-        printfunc apprun | sed '4s#/#/bin/#' > "$2"
+        outfunc apprun | sed '5s#/#/bin/#' > "$2"
         chmod +x "$2"
         exit ;;
-    --bundle )
+    --bundle ) # allow bundling dwarfs binary
         BUNDLE=$(realpath "$2")
         shift 2;;
-    -d )
+    -d | --decompress )
         d=dwarfs-root # just to keep line shorter, extract if file is dwarfs
         dwarfsck -d0 -i"$2" && mkdir $d && dwarfsextract -o $d -i "$2" && exit
         tmp=$(mktemp) # make tmp file to avoid io operations
-        tail -n+"$(sed -n '/^exit \$? #zst$/{N;=}' "$2")" "$2" | zstd -cd > "$tmp"
+        unappimage "$2" && exit # also extract appimages cuz we can
+        tail -n+"$(sed -n '3s/^OFF=//p' "$2")" "$2" | zstd -cd > "$tmp"
         mv "$tmp" "$2"
         chmod +x "$2"
         exit ;;
     --fetch )
         FETCH=1
         shift ;;
-    -p | -z)
+    -p | -z | --prefix | --zzexe )
         zzexe "$@" ;;
     --version | -v )
         tput setaf 2; echo appdwarf 2023.02.04
         tput setaf 6; echo Built by July 🏳️‍🌈; exit ;;
     -* | '' )
         echo "Usage: appdwarf [option] [APP/FILE/FOLDER/URL] [compression options]"
-        echo "  -a [file]        Write example AppRun to file and exit"
-        echo "  -b [file]        Write example AppRun with bin subdir to file and exit"
-        echo "  -d [file]        Decompress an appdwarf image or zzexe'd file"
+        echo "  -a [FILE]                   write example AppRun file"
+        echo "  -b [FILE]                   write bin subdir AppRun file"
+        echo "  -d [--decompress] [FILE]    decompress a compressed program"
         echo
-        echo "  --bundle [file]  Bundle a dwarfs executable with the appdwarf image"
-        echo "  --fetch          Exit after fetching a remote AppImage, if applicable"
+        echo "  --bundle [FILE]             bundle dwarfs with the appdwarf image"
+        echo "  --fetch                     only fetch a remote AppImage"
         echo
-        echo "  -p [prefix]      zzexe a file with prefix"
-        echo "  -z               zzexe a file"
+        echo "  -p [--prefix] [PREFIX]      zzexe a file with prefix"
+        echo "  -z [--zzexe]                zzexe a file"
         echo
-        echo "  -h, --help       Print this help text"
-        echo "  -v, --version    Print the appdwarf version"; exit ;;
+        echo "  -h, --help                  Print this help text"
+        echo "  -v, --version               Print the appdwarf version"; exit ;;
 esac
 
 if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
@@ -135,14 +140,12 @@ if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
     # this is a file, but it might be an existing dwarfs image
     if dwarfsck -d0 -i"$1"; then
         set -- "$@" --recompress=none
-    elif test "$(hexdump -n11 -e'"%x"' "$1")" = 464c457f1010224941; then
-        echo "AppImage found. Converting..." # appimage magic matched
+    elif unappimage "$1"; then
         app="$(basename "$1" .AppImage)"
-        unappimage "$1"
         rm -rf "$1" "$app"
+        mv squashfs-root "$app"
         shift
         set -- "$app" "$@"
-        mv squashfs-root "$1"
     else
         tput setaf 4; echo "$1 is not an AppImage, it will be zzexe'd"
         zzexe -z "$@"
@@ -150,9 +153,17 @@ if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
 fi
 
 head="$(mktemp)"
-test "$BUNDLE" && printfunc bundlehead >> "$head"
-printfunc header >> "$head"
-test "$BUNDLE" && zstd -cq "$BUNDLE" >> "$head"
+if [ "$BUNDLE" ]; then { # behavior for bundling a dwarfs executable
+    ZDATA="$(mktemp)"
+    zstd -cq "$BUNDLE" > "$ZDATA"
+    outfunc
+    echo "OFF=$(($( (outfunc; outfunc bundlehead; outfunc header) | wc -l)+3))" 
+    echo "LEN=$(($(wc -l < "$ZDATA")+1))"
+    outfunc bundlehead
+} > "$head"
+fi
+outfunc header >> "$head"
+test "$BUNDLE" && cat "$ZDATA" >> "$head"
 echo >> "$head"
 
 mkdwarfs -o "$(realpath "$1").sh" -B5 --header "$head" -i "$@"

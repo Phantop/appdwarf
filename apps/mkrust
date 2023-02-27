@@ -2,9 +2,9 @@
 . "$(dirname "$0")"/appmk
 part0
 ARCH=x86_64-unknown-linux-gnu
-LINK=https://static.rust-lang.org/dist/rust-beta-$ARCH.tar.gz
+LINK=https://static.rust-lang.org/dist/rust-nightly-$ARCH.tar.gz
 ungz
-"$DIR"/rust-beta-$ARCH/install.sh --prefix="$DIR" --components=cargo,rustc,rust-std-$ARCH
-rm -rf "$DIR"/rust-beta-$ARCH
+"$DIR"/rust-nightly-$ARCH/install.sh --prefix="$DIR" --components=cargo,rustc,rust-std-$ARCH
+rm -rf "$DIR"/rust-nightly-$ARCH
 appb
 part9

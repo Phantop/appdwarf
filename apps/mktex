@@ -39,7 +39,7 @@ tlpdbopt_w32_multi_user 1
 EOF
 "$DIR"/tl/install-tl -profile "$DIR"/tl/prof
 rm -r "$DIR"/texmf-dist/scripts/tlcockpit
-"$DIR"/bin/x86_64-linux/tlmgr install bookhands markdown paralist titlesec titling xstring
+"$DIR"/bin/x86_64-linux/tlmgr install bookhands fontawesome5 markdown paralist titlesec titling xstring
 appb
 sed -i 3,5s#/bin#/bin/x86_64-linux# "$DIR"/AppRun
 part9

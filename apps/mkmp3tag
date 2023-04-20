@@ -6,5 +6,5 @@ aria2c "$LINK" -d "$DIR" -o mp3tag
 7z x -y -o"$DIR" "$DIR"/mp3tag
 mv "$DIR"/Mp3tag.exe "$DIR"/mp3tag
 appa
-sed -i '5s/ / wine /' "$DIR"/AppRun
+sed -i '5s/ / wine64 /' "$DIR"/AppRun
 part9

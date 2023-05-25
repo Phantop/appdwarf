@@ -11,7 +11,7 @@ mv "$DIR"/wine*/* "$DIR"/GE-Proton*/files/* "$DIR"/lutris*/* "$DIR" || true
 t=winetricks; wget -O"$DIR"/bin/$t github.com/$t/$t/raw/master/src/$t
 chmod +x "$DIR"/bin/$t
 
-if [ $PREFIX ]; then
+if [ "$PREFIX" ]; then
     WINEPREFIX="$DIR/prefix" "$DIR/bin/wine" cmd /c exit
     cat > "$DIR/AppRun" << 'EOF'
 #!/bin/sh

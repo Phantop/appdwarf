@@ -11,6 +11,7 @@ apprun() {
 bundlehead() {
     MOUNTBIN=$(mktemp) # use provided offsets to supply dwarfs binary
     tail -n+"$OFF" "$0" | head -n"$LEN" | head -c-1 | zstd -cqd > "$MOUNTBIN"
+    #shellcheck disable=SC2317
     dwarfs() { chmod +x "$MOUNTBIN"; "$MOUNTBIN" "$@"; rm "$MOUNTBIN"; }
 }
 
@@ -130,7 +131,7 @@ if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
         if aria2c -x16 -s16 "$1" -o "$app" || wget "$1" -O "$app"; then
             shift
             set -- "$app" "$@"
-            test $FETCH && chmod +x "$1" && exit
+            test "$FETCH" && chmod +x "$1" && exit
         else
             tput setaf 1; echo "No valid remote or local input found. Exiting..." >&2
             rm -f "$app"; exit 1

@@ -2,7 +2,7 @@
 . "$(dirname "$0")"/appmk
 part0
 LINK=https://dotnetcli.azureedge.net/dotnet/Runtime
-VER=$(curl $LINK/LTS/latest.version)
+VER=$(curl $LINK/STS/latest.version)
 LINK="$LINK/$VER/dotnet-runtime-$VER-linux-x64.tar.gz"
 ungz
 ln -s dotnet "$DIR"/AppRun

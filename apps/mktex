@@ -18,6 +18,7 @@ collection-basic 1
 collection-binextra 1
 collection-latex 1
 collection-latexrecommended 1
+collection-xetex 1
 instopt_adjustpath 1
 instopt_adjustrepo 1
 instopt_letter 0
@@ -39,7 +40,7 @@ tlpdbopt_w32_multi_user 1
 EOF
 "$DIR"/tl/install-tl -profile "$DIR"/tl/prof
 rm -r "$DIR"/texmf-dist/scripts/tlcockpit
-"$DIR"/bin/x86_64-linux/tlmgr install bookhands fontawesome5 markdown paralist titlesec titling xstring
+"$DIR"/bin/x86_64-linux/tlmgr install bookhands fontawesome5 markdown paralist titlesec titling xstring soul
 appb
 sed -i 3,5s#/bin#/bin/x86_64-linux# "$DIR"/AppRun
 part9

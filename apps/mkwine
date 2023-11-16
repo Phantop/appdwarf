@@ -10,6 +10,7 @@ unarc
 mv "$DIR"/wine*/* "$DIR"/GE-Proton*/files/* "$DIR"/lutris*/* "$DIR" || true
 t=winetricks; wget -O"$DIR"/bin/$t github.com/$t/$t/raw/master/src/$t
 chmod +x "$DIR"/bin/$t
+rm -r "$DIR"/lib/wine/i386*
 
 if [ "$PREFIX" ]; then
     WINEPREFIX="$DIR/prefix" "$DIR/bin/wine" cmd /c exit

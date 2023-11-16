@@ -87,7 +87,7 @@ case "$1" in
     -p | -z | --prefix | --zzexe )
         zzexe "$@" ;;
     --version | -v )
-        tput setaf 2; echo appdwarf 2023.02.04
+        tput setaf 2; echo appdwarf 2023.05.25
         tput setaf 6; echo Built by July 🏳️‍🌈; exit ;;
     -* | '' )
         echo "Usage: appdwarf [option] [APP/FILE/FOLDER/URL] [compression options]"

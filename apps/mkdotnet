@@ -1,9 +1,9 @@
 #!/bin/sh
 . "$(dirname "$0")"/appmk
 part0
-LINK=https://dotnetcli.azureedge.net/dotnet/Runtime
+LINK=https://dotnetcli.azureedge.net/dotnet/Sdk
 VER=$(curl $LINK/STS/latest.version)
-LINK="$LINK/$VER/dotnet-runtime-$VER-linux-x64.tar.gz"
+LINK="$LINK/$VER/dotnet-sdk-$VER-linux-x64.tar.gz"
 ungz
 ln -s dotnet "$DIR"/AppRun
 part9

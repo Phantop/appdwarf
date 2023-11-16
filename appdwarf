@@ -87,7 +87,7 @@ case "$1" in
     -p | -z | --prefix | --zzexe )
         zzexe "$@" ;;
     --version | -v )
-        tput setaf 2; echo appdwarf 2023.05.25
+        tput setaf 2; echo appdwarf 2023.11.16
         tput setaf 6; echo Built by July 🏳️‍🌈; exit ;;
     -* | '' )
         echo "Usage: appdwarf [option] [APP/FILE/FOLDER/URL] [compression options]"
@@ -95,7 +95,7 @@ case "$1" in
         echo "  -b [FILE]                   write bin subdir AppRun file"
         echo "  -d [--decompress] [FILE]    decompress a compressed program"
         echo
-        echo "  --bundle [FILE]             bundle dwarfs with the appdwarf image"
+        echo "  --bundle [path/to/dwarfs]   bundle dwarfs with the appdwarf image"
         echo "  --fetch                     only fetch a remote AppImage"
         echo
         echo "  -p [--prefix] [PREFIX]      zzexe a file with prefix"

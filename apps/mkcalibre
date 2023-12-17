@@ -3,8 +3,8 @@
 part0
 base=https://download.calibre-ebook.com
 LINK="$(curl "$base" | tail -n 1 | cut -d\" -f2)"
-LINK="$(curl "$base/$LINK" | tail -n 1 | cut -d\" -f4)"
-LINK="$base/$LINK$(curl "$base/$LINK" | tail -n 1 | cut -d\" -f18)"
+LINK="$(curl "$base/$LINK" | tail -n 1 | cut -d\" -f4 | tr -d /)"
+LINK="$base/$LINK/calibre-$LINK-$(uname -m).txz"
 unxz
 appa
 part9

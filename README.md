@@ -1,4 +1,4 @@
-appdwarf
+[appdwarf](https://github.com/phantop/appdwarf)
 =======
 A tool to convert an AppDir or an existing [AppImage](https://appimage.org/) file,
 either as a local file or from a URL, into a highly compressed portable image using

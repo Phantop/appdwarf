@@ -167,6 +167,6 @@ outfunc header >> "$head"
 test "$BUNDLE" && cat "$ZDATA" >> "$head"
 echo >> "$head"
 
-mkdwarfs -o "$(realpath "$1").sh" -B5 --header "$head" -i "$@"
+mkdwarfs -o "$(realpath "$1").sh" -B5 --header "$head" -i "$@" --categorize=pcmaudio -C pcmaudio/waveform::flac:level=8
 rm -rf "$head" "$1"
 chmod +x "$(realpath "$1").sh"

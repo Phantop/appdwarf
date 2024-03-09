@@ -1,7 +1,8 @@
 #!/bin/sh
 . "$(dirname "$0")"/appmk
 part0
-LINK=$(curl https://nodejs.org/en/download/current/ | grep -m1 linux | cut -d\" -f4)
+LINK=https://nodejs.org/dist/latest/
+LINK=$LINK$(curl $LINK | grep linux-x64.tar.xz | cut -d\" -f2)
 unxz
 mv "$DIR"/node*/* "$DIR"
 appb

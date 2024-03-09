@@ -1,7 +1,7 @@
 #!/bin/sh
 . "$(dirname "$0")"/appmk
 part0
-LINK="https://buildbot.pypy.org/nightly/trunk/pypy-c-jit-latest-linux64.tar.bz2"
+LINK="$(curl https://www.pypy.org/download.html | grep http.\*linux64.tar.bz2 | head -n1 | cut -d\" -f4)"
 unbz
 mv "$DIR"/pypy*/* "$DIR"
 "$DIR"/bin/pypy -m ensurepip

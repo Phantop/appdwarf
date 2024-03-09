@@ -1,0 +1,45 @@
+name: build
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    name: Build
+    strategy:
+      fail-fast: false
+      matrix:
+        app:
+          - calibre
+          - dotnet
+          - go
+          - java
+          - mp3tag
+          - musikcube
+          - musl
+          - node
+          - pypy
+          - renpy
+          - rust
+          - tex
+          - wine
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Install packaging dependencies
+        run: sudo apt install -y aria2 libarchive-tools
+      - name: Run stuff
+        run: |
+          sudo cp appdwarf /bin
+          cd apps
+          sudo wget https://github.com/mhx/dwarfs/releases/download/v0.9.6/dwarfs-universal-0.9.6-Linux-x86_64-clang -O /bin/mkdwarfs
+          sudo chmod +x /bin/mkdwarfs
+          ./mk${{ matrix.app }} 21
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app }}
+          path: |
+            bin/${{ matrix.app }}

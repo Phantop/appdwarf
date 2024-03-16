@@ -2,7 +2,7 @@
 . "$(dirname "$0")"/appmk
 part0
 APP="$1"
-powerpill -Sw --cachedir "$DIR" "$@"
+sudo pacman -Sw --cachedir "$DIR" "$@"
 parallel "tar xf {} -C$DIR" ::: "$DIR"/*.tar.zst
 rm -f "$DIR"/*.tar.zst*
 appb

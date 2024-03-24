@@ -87,8 +87,12 @@ case "$1" in
     -p | -z | --prefix | --zzexe )
         zzexe "$@" ;;
     --version | -v )
-        tput setaf 2; echo appdwarf 2023.11.16
-        tput setaf 6; echo Built by July 🏳️‍🌈; exit ;;
+        printf '\e[32m'
+        echo 'appdwarf 2023.11.16'
+        printf '\e[36m'
+        echo Built by July 🏳️‍🌈
+        printf '\e[0m'
+        exit ;;
     -* | '' )
         echo "Usage: appdwarf [option] [APP/FILE/FOLDER/URL] [compression options]"
         echo "  -a [FILE]                   write example AppRun file"
@@ -133,7 +137,9 @@ if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
             set -- "$app" "$@"
             test "$FETCH" && chmod +x "$1" && exit
         else
-            tput setaf 1; echo "No valid remote or local input found. Exiting..." >&2
+            printf '\e[31m' >&2
+            echo "No valid remote or local input found. Exiting..." >&2
+            printf '\e[0m' >&2
             rm -f "$app"; exit 1
         fi
     fi
@@ -148,7 +154,9 @@ if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
         shift
         set -- "$app" "$@"
     else
-        tput setaf 4; echo "$1 is not an AppImage, it will be zzexe'd"
+        printf '\e[34m'
+        echo "$1 is not an AppImage, it will be zzexe'd"
+        printf '\e[0m'
         zzexe -z "$@"
     fi
 fi

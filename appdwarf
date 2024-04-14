@@ -21,8 +21,6 @@ header() {
     dwarfs -o offset=auto -o tidy_strategy=swap -o workers="$(nproc)" "$0" "$APPDIR"
     trap 'fusermount -quz $APPDIR; rmdir $APPDIR' 0 1 2 3 6 14 15 EXIT
     "$APPDIR/AppRun" "$@"
-    fusermount -quz "$APPDIR"
-    rmdir "$APPDIR"
     exit $?
 }
 

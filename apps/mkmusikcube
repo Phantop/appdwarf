@@ -1,7 +1,7 @@
 #!/bin/sh
 . "$(dirname "$0")"/appmk
 part0
-LINK=$(curl https://api.github.com/repos/clangen/musikcube/releases | grep -om2 http.\*bz2 | tail -n1)
+LINK=$(curl https://api.github.com/repos/clangen/musikcube/releases | grep -om1 'http.*_64.*bz2')
 unbz
 mv "$DIR"/musikcube*/* "$DIR"
 appa

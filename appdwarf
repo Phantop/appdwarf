@@ -98,16 +98,16 @@ case "$1" in
         echo "Usage: appdwarf [option] [APP/FILE/FOLDER/URL] [compression options]"
         echo "  -a [FILE]                   write example AppRun file"
         echo "  -b [FILE]                   write bin subdir AppRun file"
-        echo "  -d, --decompress  [FILE]    decompress a compressed program"
+        echo "  -d, --decompress [FILE]     decompress a compressed program"
         echo
         echo "  --bundle [path/to/dwarfs]   bundle dwarfs with the appdwarf image"
         echo "  -f, --fetch                 only fetch a remote AppImage"
         echo
-        echo "  -p, --prefix] [PREFIX]      zzexe a file with prefix"
+        echo "  -p, --prefix [PREFIX]       zzexe a file with prefix"
         echo "  -z, --zzexe                 zzexe a file"
         echo
-        echo "  -h, --help]                 Print this help text"
-        echo "  -v, --version]              Print the appdwarf version"; exit ;;
+        echo "  -h, --help                  Print this help text"
+        echo "  -v, --version               Print the appdwarf version"; exit ;;
 esac
 
 if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage

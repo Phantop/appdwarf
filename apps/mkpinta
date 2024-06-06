@@ -1,0 +1,11 @@
+#!/bin/sh
+. "$(dirname "$0")"/appmk
+part0
+API=/repos/PintaProject/Pinta/actions/artifacts
+QUERY='.artifacts[] | select(.name == "Pinta-linux-dotnet-8.0.x.zip") | .archive_download_url'
+LINK=$(gh api $API -q "$QUERY" | head -n1)
+gh api "$LINK" | bsdtar xf - -C"$DIR"
+bsdtar xf "$DIR"/*.zip -C"$DIR"
+rm "$DIR"/*.zip
+appa
+part9

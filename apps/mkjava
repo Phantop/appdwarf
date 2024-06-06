@@ -1,7 +1,20 @@
 #!/bin/sh
 . "$(dirname "$0")"/appmk
 part0
-LINK=https://api.adoptium.net/v3/binary/latest/$1/ga/linux/x64/jdk/hotspot/normal/eclipse
+
+TYPE=jre
+VER=21
+while [ $# -gt 0 ]; do
+    case "$1" in
+        jdk | JDK )
+            TYPE=JDK ;;
+        * )
+            VER=$1 ;;
+    esac
+    shift
+done
+
+LINK=https://api.adoptium.net/v3/binary/latest/$VER/ga/linux/x64/"$TYPE"/hotspot/normal/eclipse
 shift
 ungz
 mv "$DIR"/jdk*/* "$DIR"

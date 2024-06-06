@@ -19,6 +19,7 @@ jobs:
           - musikcube
           - musl
           - node
+          - pinta
           - pypy
           - renpy
           - rust

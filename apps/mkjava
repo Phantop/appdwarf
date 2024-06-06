@@ -15,7 +15,6 @@ while [ $# -gt 0 ]; do
 done
 
 LINK=https://api.adoptium.net/v3/binary/latest/$VER/ga/linux/x64/"$TYPE"/hotspot/normal/eclipse
-shift
 ungz
 mv "$DIR"/jdk*/* "$DIR"
 appb

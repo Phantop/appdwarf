@@ -48,3 +48,46 @@ jobs:
           name: ${{ matrix.app }}
           path: |
             bin/${{ matrix.app }}
+  arch:
+    name: Arch
+    strategy:
+      fail-fast: false
+      matrix:
+        app:
+          - { name: wine, pkgs: dxvk-async-git mono vkd3d-proton-mingw-git wine-gecko wine-mono wine-staging-wow64 winetricks }
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Update system base
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm aria2 base-devel git libarchive parallel wget
+          pacman -S --noconfirm budgie-desktop vulkan-intel
+      - name: Add Chaotic-AUR for additional depends
+        run: |
+          pacman-key --init
+          pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com
+          pacman-key --lsign-key 3056513887B78AEB
+          pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
+          printf '[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist\n' >> /etc/pacman.conf
+          printf '[multilib]\nInclude = /etc/pacman.d/mirrorlist\n' >> /etc/pacman.conf
+          pacman -Syu --noconfirm
+      - name: Setup DwarFS
+        run: |
+          sudo cp appdwarf /bin
+          sudo wget https://github.com/mhx/dwarfs/releases/download/v0.9.6/dwarfs-universal-0.9.6-Linux-x86_64-clang -O /bin/mkdwarfs
+          sudo chmod +x /bin/mkdwarfs
+      - name: Build image
+        run: |
+          cd apps
+          ./mkpacman ${{ matrix.app.pkgs }}
+          pkg1=$(echo ${{ matrix.app.pkgs }} | cut -d\  -f1)
+          mv bin/$pkg1 bin/${{ matrix.app.name }}
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: arch-${{ matrix.app.name }}
+          path: |
+            bin/${{ matrix.app.name }}

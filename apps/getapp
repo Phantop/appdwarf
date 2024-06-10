@@ -3,5 +3,6 @@ set -e # exit on failure
 IFS=$(printf '\n\t') # smarter ifs
 
 gh run download -n "$1"
-chmod +x "$1"
-mv "$1" "$(dirname "$(realpath "$0")")/bin"
+file="$(echo "$1" | sed 's/^arch-//')"
+chmod +x "$file"
+mv "$file" "$(dirname "$(realpath "$0")")/bin"

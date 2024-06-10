@@ -55,6 +55,7 @@ jobs:
       matrix:
         app:
           - { name: wine, pkgs: dxvk-async-git mono vkd3d-proton-mingw-git wine-gecko wine-mono wine-staging-wow64 winetricks }
+          - { name: emus, pkgs: ares-emu-avx-git cemu citra-canary-git ryujinx yuzu-early-access }
     runs-on: ubuntu-latest
     container: archlinux:latest
     steps:

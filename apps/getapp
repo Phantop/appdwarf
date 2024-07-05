@@ -2,7 +2,5 @@
 set -e # exit on failure
 IFS=$(printf '\n\t') # smarter ifs
 
-gh run download -n "$1"
-file="$(echo "$1" | sed 's/^arch-//')"
-chmod +x "$file"
-mv "$file" "$(dirname "$(realpath "$0")")/bin"
+cd "$(dirname "$(realpath "$0")")/bin"
+appdwarf -g "$1"

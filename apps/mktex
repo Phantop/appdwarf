@@ -1,6 +1,6 @@
 #!/bin/sh
-. "$(dirname "$0")"/appmk
-part0
+# shellcheck source=../appdwarf
+SOURCE=1 . "$(which appdwarf)"
 LINK=https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
 ungz
 mv "$DIR"/install-tl-* "$DIR"/tl
@@ -39,8 +39,8 @@ tlpdbopt_sys_man /usr/local/share/man
 tlpdbopt_w32_multi_user 1
 EOF
 "$DIR"/tl/install-tl -profile "$DIR"/tl/prof
-rm -r "$DIR"/texmf-dist/scripts/tlcockpit
 "$DIR"/bin/x86_64-linux/tlmgr install bookhands fontawesome5 markdown paralist titlesec titling xstring soul
+rm -r "$DIR"/texmf-dist/scripts/tlcockpit
 appb
 sed -i 3,5s#/bin#/bin/x86_64-linux# "$DIR"/AppRun
-part9
+appmk

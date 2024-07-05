@@ -1,10 +1,10 @@
 #!/bin/sh
-. "$(dirname "$0")"/appmk
-part0
+# shellcheck source=../appdwarf
+SOURCE=1 . "$(which appdwarf)"
 base=https://download.calibre-ebook.com
 LINK="$(curl "$base" | tail -n 1 | cut -d\" -f2)"
 LINK="$(curl "$base/$LINK" | tail -n 1 | cut -d\" -f4 | tr -d /)"
 LINK="$base/$LINK/calibre-$LINK-$(uname -m).txz"
 unxz
 appa
-part9
+appmk

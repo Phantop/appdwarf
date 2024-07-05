@@ -1,12 +1,11 @@
 #!/bin/sh
-. "$(dirname "$0")"/appmk
-part0
+# shellcheck source=../appdwarf
+SOURCE=1 . "$(which appdwarf)"
 LINK=$(curl https://www.renpy.org/latest.html | grep 7z | cut -d\" -f2)
-aria2c "$LINK" -d "$DIR" -o renpy.exe
-7z x -y -o"$DIR" "$DIR"/renpy.exe
+un7z renpy.exe
 mkdir "$DIR"/lib
 mv "$DIR"/renpy-*/lib/py3-linux-x86_64 "$DIR"/renpy-*/lib/python* "$DIR"/lib
 mv "$DIR"/renpy-*/renpy* "$DIR"
 rm -r "$DIR"/*.exe "$DIR"/renpy-* "$DIR/renpy.app"
 ln -s renpy.sh "$DIR/AppRun"
-part9
+appmk

@@ -1,6 +1,6 @@
 #!/bin/sh
-. "$(dirname "$0")"/appmk
-part0
+# shellcheck source=../appdwarf
+SOURCE=1 . "$(which appdwarf)"
 APP="$1"
 sudo pacman -Sw --cachedir "$DIR" --noconfirm "$@"
 parallel "tar xf {} -C$DIR" ::: "$DIR"/*.tar.zst
@@ -8,4 +8,4 @@ rm -f "$DIR"/*.tar.zst*
 appb
 sed -i 4s#/lib#/usr/lib#g "$DIR"/AppRun
 sed -i 3,5s#/bin#/usr/bin# "$DIR"/AppRun
-part9
+appmk

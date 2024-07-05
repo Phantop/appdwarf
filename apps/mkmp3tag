@@ -1,10 +1,9 @@
 #!/bin/sh
-. "$(dirname "$0")"/appmk
-part0
+# shellcheck source=../appdwarf
+SOURCE=1 . "$(which appdwarf)"
 LINK=$(curl -L mp3tag.de/dodownload64.html | awk -F'[="]' /URL/'{print $7}')
-aria2c "$LINK" -d "$DIR" -o mp3tag
-7z x -y -o"$DIR" "$DIR"/mp3tag
+un7z mp3tag
 mv "$DIR"/Mp3tag.exe "$DIR"/mp3tag
 appa
 sed -i '5s/ / wine /' "$DIR"/AppRun
-part9
+appmk

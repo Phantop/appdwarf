@@ -1,6 +1,6 @@
 #!/bin/sh
-. "$(dirname "$0")"/appmk
-part0
+# shellcheck source=../appdwarf
+SOURCE=1 . "$(which appdwarf)"
 
 TYPE=jre
 VER=21
@@ -15,8 +15,7 @@ while [ $# -gt 0 ]; do
 done
 
 LINK=https://api.adoptium.net/v3/binary/latest/$VER/ga/linux/x64/"$TYPE"/hotspot/normal/eclipse
-echo $LINK
 ungz
 mv "$DIR"/jdk*/* "$DIR"
 appb
-part9
+appmk

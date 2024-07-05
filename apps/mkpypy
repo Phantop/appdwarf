@@ -1,10 +1,10 @@
 #!/bin/sh
-. "$(dirname "$0")"/appmk
-part0
+# shellcheck source=../appdwarf
+SOURCE=1 . "$(which appdwarf)"
 LINK="$(curl https://www.pypy.org/download.html | grep http.\*linux64.tar.bz2 | head -n1 | cut -d\" -f4)"
 unbz
 mv "$DIR"/pypy*/* "$DIR"
 "$DIR"/bin/pypy -m ensurepip
 "$DIR"/bin/pypy -m pip install pipx
 appb
-part9
+appmk

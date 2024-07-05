@@ -1,6 +1,6 @@
 #!/bin/sh
-. "$(dirname "$0")"/appmk
-part0
+# shellcheck source=../appdwarf
+SOURCE=1 . "$(which appdwarf)"
 
 TYPE=Runtime
 VER=LTS
@@ -16,9 +16,20 @@ done
 
 
 LINK=https://dotnetcli.azureedge.net/dotnet/$TYPE
-VER=$(curl $LINK/"$VER"/latest.version)
 TYPE=$(echo "$TYPE" | tr "[:upper:]" "[:lower:]")
+VER=$(curl $LINK/"$VER"/latest.version)
 LINK="$LINK/$VER/dotnet-$TYPE-$VER-linux-x64.tar.gz"
 ungz
-ln -s dotnet "$DIR"/AppRun
-part9
+
+apprun() {
+export DOTNET_ROOT="$APPDIR"
+case "$(basename "$ARGV0")" in
+    dotnetenv )
+        exec "$@" ;;
+    * )
+        exec "$APPDIR/$(basename "$ARGV0")" "$@" ;;
+esac
+}
+
+appa
+appmk

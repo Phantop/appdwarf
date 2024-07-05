@@ -1,9 +1,9 @@
 #!/bin/sh
-. "$(dirname "$0")"/appmk
-part0
+# shellcheck source=../appdwarf
+SOURCE=1 . "$(which appdwarf)"
 LINK=https://nodejs.org/dist/latest/
 LINK=$LINK$(curl $LINK | grep linux-x64.tar.xz | cut -d\" -f2)
 unxz
 mv "$DIR"/node*/* "$DIR"
 appb
-part9
+appmk

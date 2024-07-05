@@ -2,17 +2,46 @@
 set -e # exit on failure
 IFS=$(printf '\n\t') # smarter ifs
 
+appmk() {
+    appdwarf "$DIR"
+    mv "$DIR".sh bin/"$APP"
+    rm -rf "$DIR"
+}
+
 apprun() {
     export PATH="$APPDIR"/bin:"$PATH"
     export LD_LIBRARY_PATH="$APPDIR"/lib64:"$APPDIR"/lib:"$LD_LIBRARY_PATH"
     exec "$APPDIR/$(basename "$ARGV0")" "$@"
 }
 
+arun() {
+    outfunc apprun > "$1"
+    chmod +x "$1"
+}
+
+brun() {
+    outfunc apprun | sed '5s#/#/bin/#' > "$1"
+    chmod +x "$1"
+}
+
+appa() { arun "$DIR"/AppRun; }
+appb() { brun "$DIR"/AppRun; }
+
+unarc() { curl -L "$LINK" | bsdtar xf - -C"$DIR"; }
+unbz() { curl -L "$LINK" | tar xj -C"$DIR"; }
+ungz() { curl -L "$LINK" | tar xz -C"$DIR"; }
+unxz() { curl -L "$LINK" | tar xJ -C"$DIR"; }
+un7z() {
+    aria2c "$LINK" -d "$DIR" -o "$1"
+    7z x -y -o"$DIR" "$DIR"/"$1"
+}
+
 bundlehead() {
-    MOUNTBIN=$(mktemp) # use provided offsets to supply dwarfs binary
-    tail -n+"$OFF" "$0" | head -n"$LEN" | head -c-1 | zstd -cqd > "$MOUNTBIN"
+    mountbin=$(mktemp) # use provided offsets to supply dwarfs binary
+    #shellcheck disable=SC2154
+    tail -n+"$off" "$0" | head -n"$len" | head -c-1 | zstd -cqd > "$mountbin"
     #shellcheck disable=SC2317
-    dwarfs() { chmod +x "$MOUNTBIN"; "$MOUNTBIN" "$@"; rm "$MOUNTBIN"; }
+    dwarfs() { chmod +x "$mountbin"; "$mountbin" "$@"; rm "$mountbin"; }
 }
 
 header() {
@@ -42,7 +71,7 @@ zzexe() {
     [ "$1" = "-p" ] && p="$2" && shift # save prefix if present
     shift; out=$(mktemp) # make tmp file to avoid io operations
     { outfunc
-        echo "OFF=$(($( (outfunc; outfunc zzexe_header) | wc -l)+2))"
+        echo "off=$(($( (outfunc; outfunc zzexe_header) | wc -l)+2))"
         outfunc zzexe_header | sed -e "3s/)$/${1##*[./]})/" -e "8s/^/$p /"
         zstdmt -cq19 "$@"
     } > "$out"
@@ -53,7 +82,7 @@ zzexe() {
 
 zzexe_header() {
     dir="$(dirname "$0")" out=$(mktemp -t .zzXXXX.)
-    tail -n+"$OFF" "$0" | zstd -cd > "$out"
+    tail -n+"$off" "$0" | zstd -cd > "$out"
     chmod +x "$out"
     [ ! -f "$dir/$(basename "$out")" ] && ln -s "$out" "$dir"
     trap 'rm -f "$out" "$dir/$(basename "$out")"'  0 1 2 3 6 14 15 EXIT
@@ -61,35 +90,47 @@ zzexe_header() {
     exit $?
 }
 
+if [ "$SOURCE" ]; then
+    unset SOURCE
+    trap 'rm -rf "$DIR"' 0 1 2 3 6 14 15 EXIT
+    APP=$(basename "$0" | sed 's/^mk//')
+    DIR=/tmp/appdwarf/$APP
+    mkdir -p "$DIR"
+    return
+fi
+
 case "$1" in
     -a )
-        outfunc apprun > "$2"
-        chmod +x "$2"
+        arun "$2"
         exit ;;
     -b )
-        outfunc apprun | sed '5s#/#/bin/#' > "$2"
-        chmod +x "$2"
+        brun "$2"
         exit ;;
     --bundle ) # allow bundling dwarfs binary
-        BUNDLE=$(realpath "$2")
+        bundle=$(realpath "$2")
         shift 2;;
     -d | --decompress )
         d=dwarfs-root # just to keep line shorter, extract if file is dwarfs
         dwarfsck -d0 -i"$2" && mkdir $d && dwarfsextract -o $d -i "$2" && exit
         tmp=$(mktemp) # make tmp file to avoid io operations
         unappimage "$2" && exit # also extract appimages cuz we can
-        tail -n+"$(sed -n '3s/^OFF=//p' "$2")" "$2" | zstd -cd > "$tmp"
+        tail -n+"$(sed -n '3s/^off=//p' "$2")" "$2" | zstd -cd > "$tmp"
         mv "$tmp" "$2"
         chmod +x "$2"
         exit ;;
     -f | --fetch )
-        FETCH=1
+        fetch=1
         shift ;;
+    -g | --get )
+        gh run -R phantop/appdwarf download -n "$2"
+        file="$(echo "$2" | sed 's/^arch-//')"
+        chmod +x "$file"
+        exit ;;
     -p | -z | --prefix | --zzexe )
         zzexe "$@" ;;
     --version | -v )
         printf '\e[32m'
-        echo 'appdwarf 2023.11.16'
+        echo 'appdwarf 2024.07.04'
         printf '\e[36m'
         echo Built by July 🏳️‍🌈
         printf '\e[0m'
@@ -102,6 +143,7 @@ case "$1" in
         echo
         echo "  --bundle [path/to/dwarfs]   bundle dwarfs with the appdwarf image"
         echo "  -f, --fetch                 only fetch a remote AppImage"
+        echo "  -g, --get                   download a prebuild appdwarf from actions"
         echo
         echo "  -p, --prefix [PREFIX]       zzexe a file with prefix"
         echo "  -z, --zzexe                 zzexe a file"
@@ -127,16 +169,16 @@ if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
             echo "Assuming this is a GitHub repo..."
             app="$(echo "${1%/}"/releases | sed 's|github.com|api.github.com/repos|')"
             api="$(curl "$app" | jq -r .[].assets[].browser_download_url | grep 'AppImage$')"
-            link="$(echo "$api" | grep "$(uname -m)" || echo "$api" | grep -vEe '-(aarch|arm)(64|hf)\.AppImage')"
+            url="$(echo "$api" | grep "$(uname -m)" || echo "$api" | grep -vEe '-(aarch|arm)(64|hf)\.AppImage')"
             shift
-            set -- "$(echo "$link" | head -n1)" "$@"
+            set -- "$(echo "$url" | head -n1)" "$@"
         fi
 
         app=$(basename "$1") # actually try to get the appimage
         if aria2c -x16 -s16 "$1" -o "$app" || wget "$1" -O "$app"; then
             shift
             set -- "$app" "$@"
-            test "$FETCH" && chmod +x "$1" && exit
+            test "$fetch" && chmod +x "$1" && exit
         else
             printf '\e[31m' >&2
             echo "No valid remote or local input found. Exiting..." >&2
@@ -160,22 +202,22 @@ if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
         printf '\e[0m'
         zzexe -z "$@"
     fi
-fi
+    fi
 
-head="$(mktemp)"
-if [ "$BUNDLE" ]; then { # behavior for bundling a dwarfs executable
-    ZDATA="$(mktemp)"
-    zstd -cq "$BUNDLE" > "$ZDATA"
-    outfunc
-    echo "OFF=$(($( (outfunc; outfunc bundlehead; outfunc header) | wc -l)+3))" 
-    echo "LEN=$(($(wc -l < "$ZDATA")+1))"
-    outfunc bundlehead
-} > "$head"
-fi
-outfunc header >> "$head"
-test "$BUNDLE" && cat "$ZDATA" >> "$head"
-echo >> "$head"
+    head="$(mktemp)"
+    if [ "$bundle" ]; then { # behavior for bundling a dwarfs executable
+        zdata="$(mktemp)"
+        zstd -cq "$bundle" > "$zdata"
+        outfunc
+        echo "off=$(($( (outfunc; outfunc bundlehead; outfunc header) | wc -l)+3))" 
+        echo "len=$(($(wc -l < "$zdata")+1))"
+        outfunc bundlehead
+    } > "$head"
+    fi
+    outfunc header >> "$head"
+    test "$bundle" && cat "$zdata" >> "$head"
+    echo >> "$head"
 
-mkdwarfs -o "$(realpath "$1").sh" -B5 --header "$head" -i "$@" --categorize=pcmaudio -C pcmaudio/waveform::flac:level=8
-rm -rf "$head" "$1"
-chmod +x "$(realpath "$1").sh"
+    mkdwarfs -o "$(realpath "$1").sh" -B5 --header "$head" -i "$@" --categorize=pcmaudio -C pcmaudio/waveform::flac:level=8
+    rm -rf "$head" "$1"
+    chmod +x "$(realpath "$1").sh"

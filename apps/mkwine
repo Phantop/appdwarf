@@ -34,7 +34,7 @@ apprun() {
 }
 if [ "$PREFIX" ]; then
     WINEPREFIX="$DIR/prefix" "$DIR/bin/wine" cmd /c exit
-    appb
+    appa
 fi
 
 appmk

@@ -57,7 +57,7 @@ header() {
 outfunc() {
     echo '#!/bin/sh'
     echo 'set -e' # running outfunc with no input just prints these two lines
-    sed -n "/^$1() {$/,/^}$/s/^ *//p" "$0" | tail -n+2 | head -n-1
+    sed -n "/^$1() {$/,/^}$/s/^ *//p" "$script" | tail -n+2 | head -n-1
 }
 
 unappimage() {
@@ -92,11 +92,14 @@ zzexe_header() {
 
 if [ "$SOURCE" ]; then
     unset SOURCE
+    script="$(which appdwarf)"
     trap 'rm -rf "$DIR"' 0 1 2 3 6 14 15 EXIT
     APP=$(basename "$0" | sed 's/^mk//')
     DIR=/tmp/appdwarf/$APP
     mkdir -p "$DIR"
     return
+else
+    script="$0"
 fi
 
 case "$1" in

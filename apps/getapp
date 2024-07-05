@@ -3,4 +3,5 @@ set -e # exit on failure
 IFS=$(printf '\n\t') # smarter ifs
 
 cd "$(dirname "$(realpath "$0")")/bin"
+rm -f "$(echo "$1" | sed 's/arch-//')"
 appdwarf -g "$1"

@@ -4,7 +4,7 @@ IFS=$(printf '\n\t') # smarter ifs
 
 appmk() {
     appdwarf "$DIR"
-    mv "$DIR".sh bin/"$APP"
+    mv "$DIR".sh "$(dirname "$(realpath "$0")")/bin/$APP"
     rm -rf "$DIR"
 }
 

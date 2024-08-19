@@ -17,6 +17,7 @@ t=winetricks
 wget -O"$DIR"/bin/$t github.com/$t/$t/raw/master/src/$t
 chmod +x "$DIR"/bin/$t
 
+script="$0"
 apprun() {
     export PATH="$APPDIR"/bin:"$PATH"
     export LD_LIBRARY_PATH="$APPDIR"/lib64:"$APPDIR"/lib:"$LD_LIBRARY_PATH"
@@ -37,4 +38,5 @@ if [ "$PREFIX" ]; then
     appa
 fi
 
+script="$(which appdwarf)"
 appmk

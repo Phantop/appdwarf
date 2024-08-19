@@ -205,22 +205,22 @@ if [ ! -d "$1" ]; then # directory doesn't exist, see if this is an appimage
         printf '\e[0m'
         zzexe -z "$@"
     fi
-    fi
+fi
 
-    head="$(mktemp)"
-    if [ "$bundle" ]; then { # behavior for bundling a dwarfs executable
-        zdata="$(mktemp)"
-        zstd -cq "$bundle" > "$zdata"
-        outfunc
-        echo "off=$(($( (outfunc; outfunc bundlehead; outfunc header) | wc -l)+3))" 
-        echo "len=$(($(wc -l < "$zdata")+1))"
-        outfunc bundlehead
-    } > "$head"
-    fi
-    outfunc header >> "$head"
-    test "$bundle" && cat "$zdata" >> "$head"
-    echo >> "$head"
+head="$(mktemp)"
+if [ "$bundle" ]; then { # behavior for bundling a dwarfs executable
+    zdata="$(mktemp)"
+    zstd -cq "$bundle" > "$zdata"
+    outfunc
+    echo "off=$(($( (outfunc; outfunc bundlehead; outfunc header) | wc -l)+3))" 
+    echo "len=$(($(wc -l < "$zdata")+1))"
+    outfunc bundlehead
+} > "$head"
+fi
+outfunc header >> "$head"
+test "$bundle" && cat "$zdata" >> "$head"
+echo >> "$head"
 
-    mkdwarfs -o "$(realpath "$1").sh" -B5 --header "$head" -i "$@" --categorize=pcmaudio -C pcmaudio/waveform::flac:level=8
-    rm -rf "$head" "$1"
-    chmod +x "$(realpath "$1").sh"
+mkdwarfs -o "$(realpath "$1").sh" -B5 --header "$head" -i "$@" --categorize=pcmaudio -C pcmaudio/waveform::flac:level=8
+rm -rf "$head" "$1"
+chmod +x "$(realpath "$1").sh"

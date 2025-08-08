@@ -24,6 +24,16 @@ brun() {
     chmod +x "$1"
 }
 
+urun() {
+    outfunc apprun | sed '5s/ / umu-run /' > "$1"
+    chmod +x "$1"
+}
+
+wrun() {
+    outfunc apprun | sed '5s/ / wine /;5s/)/).exe/' > "$1"
+    chmod +x "$1"
+}
+
 appa() { arun "$DIR"/AppRun; }
 appb() { brun "$DIR"/AppRun; }
 
@@ -137,6 +147,12 @@ case "$1" in
         printf '\e[36m'
         echo Built by July 🏳️‍🌈
         printf '\e[0m'
+        exit ;;
+    -u )
+        urun "$2"
+        exit ;;
+    -w )
+        wrun "$2"
         exit ;;
     -* | '' )
         echo "Usage: appdwarf [option] [APP/FILE/FOLDER/URL] [compression options]"

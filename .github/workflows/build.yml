@@ -56,7 +56,7 @@ jobs:
       fail-fast: false
       matrix:
         app:
-          - { name: wine, pkgs: dxvk-async-git mono vkd3d-proton-mingw-git wine-gecko wine-mono wine-staging-wow64 winetricks }
+          - { name: wine, pkgs: dxvk-async-git mono vkd3d-proton-mingw-git wine-gecko wine-mono wine-staging winetricks }
           - { name: emus, pkgs: ares-emu-avx-git cemu citra-canary-git ryujinx suyu-dev-qt6-git }
     runs-on: ubuntu-latest
     container: archlinux:latest
